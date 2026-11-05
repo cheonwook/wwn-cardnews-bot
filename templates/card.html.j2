@@ -40,7 +40,8 @@
   .divider::before, .divider::after { content: ''; flex: 1; height: 3px; background: var(--line); }
   .badge { width: 76px; height: 76px; border-radius: 50%; background: #fff; color: var(--navy); display: grid; place-items: center;
            font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: -.01em; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
-  {% if logo_url %}.badge { background: #fff url('{{ logo_url }}') center/88% no-repeat; color: transparent; }{% endif %}
+  {% if logo_url %}.badge { width: 104px; height: 104px; background: url('{{ logo_url }}') center/cover no-repeat; color: transparent; box-shadow: 0 0 0 5px rgba(255,255,255,.14), 0 6px 24px rgba(0,0,0,.5); }{% endif %}
+  .biglogo { width: 300px; height: 300px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 8px rgba(255,255,255,.08); margin-bottom: 30px; }
   .divider .label { font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); letter-spacing: .03em; }
 
   /* ── 표지 ──────────────────────────── */
@@ -67,7 +68,7 @@
   .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
 
   /* ── 출처 / 마무리 ──────────────────── */
-  .outro .content { position: absolute; left: 70px; right: 70px; top: 190px; bottom: 120px; display: flex; flex-direction: column; align-items: center; }
+  .outro .content { position: absolute; left: 70px; right: 70px; top: 160px; bottom: 120px; display: flex; flex-direction: column; align-items: center; }
   .bigmark { font-family: 'HeadEn', 'HeadKo'; font-size: 200px; line-height: 1; letter-spacing: -.01em; }
   .bigmark em { color: var(--accent); }
   .tagline { font-family: 'HeadEn', 'HeadKo'; font-size: 40px; color: var(--sub); margin-top: 6px; letter-spacing: .02em; }
@@ -135,7 +136,7 @@
 <section class="slide outro" id="s{{ total }}">
   {{ top(total) }}
   <div class="content">
-    <div class="bigmark">W<em>W</em>N</div>
+    {% if logo_url %}<div class="biglogo" style="background-image:url('{{ logo_url }}')"></div>{% else %}<div class="bigmark">W<em>W</em>N</div>{% endif %}
     <div class="tagline">WORLD WIDE NEWS · 해외 이슈를 한국어로</div>
     <div class="src">
       <div class="k">SOURCE · 원문 출처</div>
