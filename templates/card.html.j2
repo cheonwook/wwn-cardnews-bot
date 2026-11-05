@@ -31,6 +31,7 @@
   /* ── 상단 크롬 ─────────────────────── */
   .top { position: absolute; top: 48px; left: 52px; right: 52px; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
   .wordmark { font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: .04em; display: flex; align-items: center; gap: 14px; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+  .toplogo { width: 68px; height: 68px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 3px rgba(255,255,255,.18), 0 4px 14px rgba(0,0,0,.45); flex: none; }
   .wordmark small { font-family: 'Pretendard'; font-weight: 700; font-size: 20px; letter-spacing: .16em; opacity: .85; }
   .wordmark .cat { font-family: 'Pretendard'; font-weight: 800; font-size: 22px; letter-spacing: 0; background: var(--accent); color: #fff; padding: 6px 14px; text-shadow: none; }
   .pill { background: rgba(20,20,20,.55); border: 1px solid rgba(255,255,255,.18); border-radius: 40px; padding: 8px 22px; font-family: 'HeadEn', 'HeadKo'; font-size: 28px; letter-spacing: .04em; }
@@ -45,17 +46,19 @@
   .divider .label { font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); letter-spacing: .03em; }
 
   /* ── 표지 ──────────────────────────── */
-  .cover .photo { height: 1080px; }
-  .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 56px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 26px; }
-  .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 128px; line-height: 1.1; text-align: center; letter-spacing: -.01em; text-wrap: balance;
-              max-height: 590px; overflow: hidden; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+  .cover .photo { height: 1350px; }
+  .cover .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 46%, rgba(5,5,5,.78) 66%, rgba(5,5,5,.96) 82%, var(--black) 100%); }
+  .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 54px; max-height: 650px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .cover .badge { width: 84px; height: 84px; }
+  .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 104px; line-height: 1.0; text-align: center; letter-spacing: -.045em; word-spacing: -.04em; text-wrap: balance;
+              max-height: 330px; padding-top: .04em; overflow: hidden; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
   .swipe { font-family: 'HeadEn', 'HeadKo'; font-size: 32px; letter-spacing: .04em; opacity: .95; }
 
   /* ── 본문 ──────────────────────────── */
   .page .photo { height: 900px; }
   .page .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,.05) 18%, rgba(5,5,5,.15) 50%, rgba(5,5,5,.9) 85%, var(--black) 100%); }
   .page .content { position: absolute; left: 60px; right: 60px; bottom: 130px; z-index: 4; display: flex; flex-direction: column; }
-  .stitle { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 96px; line-height: 1.12; text-align: center; margin: 30px 0 36px; text-wrap: balance; }
+  .stitle { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 92px; line-height: 1.02; letter-spacing: -.04em; text-align: center; margin: 30px 0 36px; text-wrap: balance; }
   .text { max-height: 420px; font-size: 52px; line-height: 1.58; font-weight: 600; color: #E9E9E9; letter-spacing: -.02em; text-align: center; overflow: hidden; text-wrap: pretty; }
   .text mark { background: none; color: var(--accent); font-weight: 800; }
   .foot { position: absolute; left: 60px; right: 60px; bottom: 52px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; color: #8A8A8A; z-index: 4; letter-spacing: .02em; }
@@ -86,7 +89,7 @@
 
 {% macro top(n, cat=false) -%}
 <div class="top">
-  <div class="wordmark">WWN <small>WORLD WIDE NEWS</small>{% if cat %} <span class="cat">{{ category }}</span>{% endif %}</div>
+  <div class="wordmark">{% if logo_url %}<span class="toplogo" style="background-image:url('{{ logo_url }}')"></span>{% else %}WWN {% endif %}<small>WORLD WIDE NEWS</small>{% if cat %} <span class="cat">{{ category }}</span>{% endif %}</div>
   <div class="pill">{{ n }}/{{ total }}</div>
 </div>
 {%- endmacro %}
