@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>cardnews</title>
+<style>
+  {% for w, n in [(400,'Regular'),(500,'Medium'),(700,'Bold'),(800,'ExtraBold'),(900,'Black')] %}
+  @font-face { font-family: 'Pretendard'; font-weight: {{ w }}; src: url('{{ font_dir }}/Pretendard-{{ n }}.woff2') format('woff2'); }
+  {% endfor %}
+
+  :root {
+    --paper: #F3EFE6;
+    --ink: #121212;
+    --muted: #6B665C;
+    --rule: #D8D1C2;
+    --accent: {{ accent }};
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #777; font-family: 'Pretendard', 'Noto Sans CJK KR', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
+  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; margin-bottom: 40px; }
+
+  /* ── 공통 크롬 ───────────────────────── */
+  .topbar { position: absolute; top: 64px; left: 72px; right: 72px; display: flex; justify-content: space-between; align-items: center; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; z-index: 3; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand i { width: 14px; height: 14px; background: var(--accent); display: inline-block; }
+  .footer { position: absolute; bottom: 60px; left: 72px; right: 72px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 600; z-index: 3; }
+
+  /* ── 표지 ───────────────────────────── */
+  .cover { background: #000 center/cover no-repeat; color: #fff; }
+  .cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 38%, rgba(0,0,0,.78) 64%, rgba(0,0,0,.94) 100%); z-index: 1; }
+  .cover .topbar { color: #fff; }
+  .cover .body { position: absolute; left: 72px; right: 72px; bottom: 170px; z-index: 2; }
+  .tag { display: inline-flex; align-items: center; gap: 12px; background: var(--accent); color: #fff; font-size: 26px; font-weight: 800; padding: 10px 20px; letter-spacing: 0.06em; margin-bottom: 36px; }
+  .tag span { font-weight: 600; letter-spacing: 0; opacity: .9; }
+  .headline { font-size: 104px; line-height: 1.16; font-weight: 900; letter-spacing: -0.045em; white-space: pre-line; max-height: 480px; overflow: hidden; }
+  .sub { margin-top: 32px; font-size: 38px; line-height: 1.45; font-weight: 500; color: rgba(255,255,255,.86); letter-spacing: -0.02em; max-height: 120px; overflow: hidden; }
+  .cover .footer { color: rgba(255,255,255,.8); }
+  .cover .footer b { color: #fff; }
+
+  /* ── 본문 ───────────────────────────── */
+  .page { background: var(--paper); color: var(--ink); }
+  .page .topbar { color: var(--ink); border-bottom: 3px solid var(--ink); padding-bottom: 22px; }
+  .pno { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 600; }
+  .pno b { color: var(--ink); }
+  .ghost { position: absolute; right: 40px; top: 120px; font-size: 460px; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 3px var(--rule); letter-spacing: -0.06em; z-index: 0; }
+  .page .content { position: absolute; left: 72px; right: 72px; top: 300px; bottom: 170px; z-index: 2; display: flex; flex-direction: column; }
+  .kicker { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: 0.02em; margin-bottom: 26px; }
+  .stitle { font-size: 76px; line-height: 1.2; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 56px; }
+  .text { flex: 1; font-size: 48px; line-height: 1.62; font-weight: 500; letter-spacing: -0.025em; overflow: hidden; }
+  .text mark { background: linear-gradient(transparent 58%, color-mix(in srgb, var(--accent) 38%, transparent) 58%); color: inherit; font-weight: 800; padding: 0 2px; }
+  .page .footer { color: var(--muted); border-top: 2px solid var(--rule); padding-top: 22px; }
+  .thumb { position: absolute; left: 72px; right: 72px; top: 160px; height: 96px; background: center/cover no-repeat; filter: grayscale(.2); z-index: 2; }
+
+  /* ── 내 생각 ────────────────────────── */
+  .take { background: var(--ink); color: #F5F2EA; }
+  .take .topbar { color: #F5F2EA; border-bottom: 3px solid #F5F2EA; padding-bottom: 22px; }
+  .take .pno, .take .pno b { color: #A8A296; }
+  .take .pno b { color: #F5F2EA; }
+  .take .content { position: absolute; left: 72px; right: 72px; top: 250px; bottom: 170px; display: flex; flex-direction: column; }
+  .quote { font-size: 260px; line-height: .8; font-weight: 900; color: var(--accent); height: 170px; }
+  .take .label { font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: .04em; margin-bottom: 40px; }
+  .take .text { font-size: 50px; line-height: 1.6; font-weight: 600; }
+  .sign { margin-top: 36px; font-size: 30px; font-weight: 700; color: #A8A296; }
+  .take .footer { color: #8C877C; border-top: 2px solid #333; padding-top: 22px; }
+
+  /* ── 출처/마무리 ─────────────────────── */
+  .outro .content { position: absolute; left: 72px; right: 72px; top: 260px; bottom: 170px; display: flex; flex-direction: column; }
+  .src { border: 3px solid var(--ink); padding: 48px; background: #fff; }
+  .src .k { font-size: 26px; font-weight: 800; color: var(--accent); letter-spacing: .06em; margin-bottom: 18px; }
+  .src .v { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; word-break: break-all; }
+  .src .u { margin-top: 14px; font-size: 26px; color: var(--muted); word-break: break-all; }
+  .note { margin-top: 44px; font-size: 30px; line-height: 1.6; color: var(--muted); font-weight: 500; }
+  .cta { margin-top: auto; display: flex; gap: 20px; }
+  .cta div { flex: 1; background: var(--ink); color: #fff; text-align: center; padding: 36px 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+  .cta div:last-child { background: var(--accent); }
+</style>
+</head>
+<body>
+
+{# ① 표지 #}
+<section class="slide cover" id="s1" style="background-image:url('{{ image_url }}')">
+  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div>{{ date }}</div></div>
+  <div class="body">
+    <div class="tag">{{ category_en }} <span>· {{ category }}</span></div>
+    <h1 class="headline fit">{{ headline }}</h1>
+    {% if subheadline %}<p class="sub">{{ subheadline }}</p>{% endif %}
+  </div>
+  <div class="footer"><b>{{ brand.handle }}</b><span>옆으로 넘겨보세요 →</span></div>
+</section>
+
+{# ② 본문 #}
+{% for s in slides %}
+<section class="slide page" id="s{{ loop.index + 1 }}">
+  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % (loop.index + 1) }}</b> / {{ '%02d' % total }}</div></div>
+  <div class="ghost">{{ '%02d' % loop.index }}</div>
+  {% if loop.first %}<div class="thumb" style="background-image:url('{{ image_url }}')"></div>{% endif %}
+  <div class="content">
+    <div class="kicker">{{ category }} · POINT {{ loop.index }}</div>
+    <h2 class="stitle">{{ s.title }}</h2>
+    <p class="text fit">{{ s.body_html }}</p>
+  </div>
+  <div class="footer"><span>{{ brand.handle }}</span><span>{{ source_label }}</span></div>
+</section>
+{% endfor %}
+
+{# ③ 내 생각 #}
+{% if my_take %}
+<section class="slide take" id="s{{ slides|length + 2 }}">
+  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % (slides|length + 2) }}</b> / {{ '%02d' % total }}</div></div>
+  <div class="content">
+    <div class="quote">“</div>
+    <div class="label">{{ brand.editor_label }}</div>
+    <p class="text fit">{{ my_take }}</p>
+    <div class="sign">— {{ brand.handle }}</div>
+  </div>
+  <div class="footer"><span>{{ brand.handle }}</span><span>개인적인 의견입니다</span></div>
+</section>
+{% endif %}
+
+{# ④ 출처 #}
+<section class="slide page outro" id="s{{ total }}">
+  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % total }}</b> / {{ '%02d' % total }}</div></div>
+  <div class="content">
+    <div class="src">
+      <div class="k">SOURCE · 원문 출처</div>
+      <div class="v">{{ source_label }}</div>
+      <div class="u">{{ permalink }}</div>
+    </div>
+    <p class="note">이 콘텐츠는 해외 게시물을 한국어로 번역·재구성하고 에디터의 의견을 더한 것입니다. {% if ai_image %}표지 이미지는 AI로 생성되었습니다.{% endif %}</p>
+    <div class="cta"><div>저장하고 다시 보기</div><div>팔로우 {{ brand.handle }}</div></div>
+  </div>
+  <div class="footer"><span>{{ brand.handle }}</span><span>{{ date }}</span></div>
+</section>
+
+<script>
+  // 글자가 넘치면 폰트 크기를 줄여 박스 안에 맞춤
+  function fitAll() {
+    document.querySelectorAll('.fit').forEach(el => {
+      let size = parseFloat(getComputedStyle(el).fontSize);
+      const min = size * 0.6;
+      while ((el.scrollHeight > el.clientHeight + 1) && size > min) {
+        size -= 2; el.style.fontSize = size + 'px';
+      }
+    });
+    document.body.dataset.fitted = '1';
+  }
+  document.fonts.ready.then(fitAll);
+</script>
+</body>
+</html>

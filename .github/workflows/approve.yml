@@ -1,0 +1,38 @@
+name: Approve & Publish
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: repo-state
+  cancel-in-progress: false
+
+jobs:
+  handle:
+    # 리포 주인이 topic-scout 이슈에 '/' 명령을 단 경우에만 실행
+    if: >-
+      github.event.comment.user.login == github.repository_owner &&
+      startsWith(github.event.comment.body, '/') &&
+      contains(github.event.issue.labels.*.name, 'topic-scout')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Install Chromium (카드 렌더링용)
+        run: python -m playwright install --with-deps chromium
+      - run: python -m bot.approve
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
