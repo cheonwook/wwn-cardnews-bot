@@ -1,1 +1,3 @@
 Pretendard (https://github.com/orioncactus/pretendard) — SIL Open Font License 1.1
+Black Han Sans (Zess Type) — SIL Open Font License 1.1
+Anton (Vernon Adams) — SIL Open Font License 1.1

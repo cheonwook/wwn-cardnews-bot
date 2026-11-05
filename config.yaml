@@ -7,6 +7,8 @@ brand:
   handle: "@wwn.daily"            # 카드 하단에 표시될 내 계정명
   name: "WWN · World Wide News"   # 표지 상단 브랜드명
   editor_label: "에디터의 시선"      # '내 생각' 슬라이드 제목
+  accent: "#4A90FF"               # 제목 강조색 (비우면 카테고리별 색 사용)
+  navy: "#1B2A72"                 # 로고 배지 글자색 (templates/logo.png 가 있으면 로고 이미지 사용)
 
 scout:
   min_likes: 5000                 # 좋아요 기준

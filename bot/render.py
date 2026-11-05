@@ -1,6 +1,7 @@
 """카드뉴스 HTML 템플릿 → 1080x1350 JPEG 슬라이드."""
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -27,10 +28,20 @@ def _mark(body: str, highlight: str) -> Markup:
     return Markup(safe)
 
 
+def _emph(text: str) -> Markup:
+    """'[[강조]]' 표시를 강조색으로. 표시가 없으면 원문 그대로."""
+    safe = str(escape(text or "")).replace("\n", "<br>")
+    safe = re.sub(r"\[\[(.+?)\]\]", r"<em>\1</em>", safe)
+    return Markup(safe.replace("[[", "").replace("]]", ""))
+
+
 def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, ai_image: bool) -> dict:
     category = cand.get("category") or "시사"
-    cat_en, accent = CATEGORY_STYLE.get(category, ("WORLD", "#2F5BEA"))
-    slides = [{"title": s.get("title", ""), "body_html": _mark(s.get("body", ""), s.get("highlight", ""))}
+    cat_en, cat_color = CATEGORY_STYLE.get(category, ("WORLD", "#2F5BEA"))
+    accent = brand.get("accent") or cat_color
+    logo = TEMPLATES_DIR / "logo.png"
+    slides = [{"title": s.get("title", ""), "title_html": _emph(s.get("title", "")),
+               "body_html": _mark(s.get("body", ""), s.get("highlight", ""))}
               for s in copy.get("slides", [])]
     my_take = (copy.get("my_take") or "").strip()
     total = 1 + len(slides) + (1 if my_take else 0) + 1
@@ -38,7 +49,10 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
     source_label = f"@{src}" if src else f"Instagram {cand.get('source_type', '')}".strip()
     return {
         "brand": brand, "category": category, "category_en": cat_en, "accent": accent,
-        "headline": copy.get("headline", ""), "subheadline": copy.get("subheadline", ""),
+        "brand_navy": brand.get("navy", "#1B2A72"),
+        "logo_url": logo.as_uri() if logo.exists() else None,
+        "headline": copy.get("headline", ""), "headline_html": _emph(copy.get("headline", "")),
+        "subheadline": copy.get("subheadline", ""),
         "slides": slides, "my_take": my_take, "total": total,
         "image_url": image_url, "permalink": cand.get("permalink", ""),
         "source_label": source_label, "ai_image": ai_image,
@@ -49,6 +63,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
 def render_slides(ctx: dict, out_dir: Path) -> list[Path]:
     from playwright.sync_api import sync_playwright
 
+    out_dir = out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=select_autoescape(["html", "j2"]))
     html = env.get_template("card.html.j2").render(font_dir=(TEMPLATES_DIR / "fonts").as_uri(), **ctx)

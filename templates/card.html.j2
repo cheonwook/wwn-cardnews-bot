@@ -2,143 +2,161 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>cardnews</title>
+<title>WWN cardnews</title>
 <style>
   {% for w, n in [(400,'Regular'),(500,'Medium'),(700,'Bold'),(800,'ExtraBold'),(900,'Black')] %}
   @font-face { font-family: 'Pretendard'; font-weight: {{ w }}; src: url('{{ font_dir }}/Pretendard-{{ n }}.woff2') format('woff2'); }
   {% endfor %}
+  /* 영문·숫자 → Anton(압축형), 한글 → Black Han Sans 로 자동 분기 */
+  @font-face { font-family: 'HeadKo'; src: url('{{ font_dir }}/BlackHanSans-Regular.ttf'); }
+  @font-face { font-family: 'HeadEn'; src: url('{{ font_dir }}/Anton-Regular.ttf'); unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2027, U+20A0-20CF; }
 
   :root {
-    --paper: #F3EFE6;
-    --ink: #121212;
-    --muted: #6B665C;
-    --rule: #D8D1C2;
     --accent: {{ accent }};
+    --navy: {{ brand_navy }};
+    --black: #050505;
+    --sub: #BDBDBD;
+    --line: rgba(255,255,255,.55);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #777; font-family: 'Pretendard', 'Noto Sans CJK KR', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
-  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; margin-bottom: 40px; }
+  body { background: #333; font-family: 'Pretendard', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
+  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; margin-bottom: 40px; background: var(--black); color: #fff; }
+  em { font-style: normal; color: var(--accent); }
 
-  /* ── 공통 크롬 ───────────────────────── */
-  .topbar { position: absolute; top: 64px; left: 72px; right: 72px; display: flex; justify-content: space-between; align-items: center; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; z-index: 3; }
-  .brand { display: flex; align-items: center; gap: 14px; }
-  .brand i { width: 14px; height: 14px; background: var(--accent); display: inline-block; }
-  .footer { position: absolute; bottom: 60px; left: 72px; right: 72px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 600; z-index: 3; }
+  /* ── 사진 + 검정 페이드 ─────────────── */
+  .photo { position: absolute; left: 0; right: 0; top: 0; background: center/cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5,5,5,.35) 0%, rgba(5,5,5,0) 14%, rgba(5,5,5,0) 52%, rgba(5,5,5,.85) 82%, var(--black) 100%); }
 
-  /* ── 표지 ───────────────────────────── */
-  .cover { background: #000 center/cover no-repeat; color: #fff; }
-  .cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 38%, rgba(0,0,0,.78) 64%, rgba(0,0,0,.94) 100%); z-index: 1; }
-  .cover .topbar { color: #fff; }
-  .cover .body { position: absolute; left: 72px; right: 72px; bottom: 170px; z-index: 2; }
-  .tag { display: inline-flex; align-items: center; gap: 12px; background: var(--accent); color: #fff; font-size: 26px; font-weight: 800; padding: 10px 20px; letter-spacing: 0.06em; margin-bottom: 36px; }
-  .tag span { font-weight: 600; letter-spacing: 0; opacity: .9; }
-  .headline { font-size: 104px; line-height: 1.16; font-weight: 900; letter-spacing: -0.045em; white-space: pre-line; max-height: 480px; overflow: hidden; }
-  .sub { margin-top: 32px; font-size: 38px; line-height: 1.45; font-weight: 500; color: rgba(255,255,255,.86); letter-spacing: -0.02em; max-height: 120px; overflow: hidden; }
-  .cover .footer { color: rgba(255,255,255,.8); }
-  .cover .footer b { color: #fff; }
+  /* ── 상단 크롬 ─────────────────────── */
+  .top { position: absolute; top: 48px; left: 52px; right: 52px; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
+  .wordmark { font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: .04em; display: flex; align-items: center; gap: 14px; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+  .wordmark small { font-family: 'Pretendard'; font-weight: 700; font-size: 20px; letter-spacing: .16em; opacity: .85; }
+  .wordmark .cat { font-family: 'Pretendard'; font-weight: 800; font-size: 22px; letter-spacing: 0; background: var(--accent); color: #fff; padding: 6px 14px; text-shadow: none; }
+  .pill { background: rgba(20,20,20,.55); border: 1px solid rgba(255,255,255,.18); border-radius: 40px; padding: 8px 22px; font-family: 'HeadEn', 'HeadKo'; font-size: 28px; letter-spacing: .04em; }
 
-  /* ── 본문 ───────────────────────────── */
-  .page { background: var(--paper); color: var(--ink); }
-  .page .topbar { color: var(--ink); border-bottom: 3px solid var(--ink); padding-bottom: 22px; }
-  .pno { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 600; }
-  .pno b { color: var(--ink); }
-  .ghost { position: absolute; right: 40px; top: 120px; font-size: 460px; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 3px var(--rule); letter-spacing: -0.06em; z-index: 0; }
-  .page .content { position: absolute; left: 72px; right: 72px; top: 300px; bottom: 170px; z-index: 2; display: flex; flex-direction: column; }
-  .kicker { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: 0.02em; margin-bottom: 26px; }
-  .stitle { font-size: 76px; line-height: 1.2; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 56px; }
-  .text { flex: 1; font-size: 48px; line-height: 1.62; font-weight: 500; letter-spacing: -0.025em; overflow: hidden; }
-  .text mark { background: linear-gradient(transparent 58%, color-mix(in srgb, var(--accent) 38%, transparent) 58%); color: inherit; font-weight: 800; padding: 0 2px; }
-  .page .footer { color: var(--muted); border-top: 2px solid var(--rule); padding-top: 22px; }
-  .thumb { position: absolute; left: 72px; right: 72px; top: 160px; height: 96px; background: center/cover no-repeat; filter: grayscale(.2); z-index: 2; }
+  /* ── 로고 구분선 ────────────────────── */
+  .divider { display: flex; align-items: center; gap: 22px; width: 100%; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 3px; background: var(--line); }
+  .badge { width: 76px; height: 76px; border-radius: 50%; background: #fff; color: var(--navy); display: grid; place-items: center;
+           font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: -.01em; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+  {% if logo_url %}.badge { background: #fff url('{{ logo_url }}') center/88% no-repeat; color: transparent; }{% endif %}
+  .divider .label { font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); letter-spacing: .03em; }
 
-  /* ── 내 생각 ────────────────────────── */
-  .take { background: var(--ink); color: #F5F2EA; }
-  .take .topbar { color: #F5F2EA; border-bottom: 3px solid #F5F2EA; padding-bottom: 22px; }
-  .take .pno, .take .pno b { color: #A8A296; }
-  .take .pno b { color: #F5F2EA; }
-  .take .content { position: absolute; left: 72px; right: 72px; top: 250px; bottom: 170px; display: flex; flex-direction: column; }
-  .quote { font-size: 260px; line-height: .8; font-weight: 900; color: var(--accent); height: 170px; }
-  .take .label { font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: .04em; margin-bottom: 40px; }
-  .take .text { font-size: 50px; line-height: 1.6; font-weight: 600; }
-  .sign { margin-top: 36px; font-size: 30px; font-weight: 700; color: #A8A296; }
-  .take .footer { color: #8C877C; border-top: 2px solid #333; padding-top: 22px; }
+  /* ── 표지 ──────────────────────────── */
+  .cover .photo { height: 1080px; }
+  .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 56px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 26px; }
+  .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 128px; line-height: 1.1; text-align: center; letter-spacing: -.01em; text-wrap: balance;
+              max-height: 590px; overflow: hidden; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+  .swipe { font-family: 'HeadEn', 'HeadKo'; font-size: 32px; letter-spacing: .04em; opacity: .95; }
 
-  /* ── 출처/마무리 ─────────────────────── */
-  .outro .content { position: absolute; left: 72px; right: 72px; top: 260px; bottom: 170px; display: flex; flex-direction: column; }
-  .src { border: 3px solid var(--ink); padding: 48px; background: #fff; }
-  .src .k { font-size: 26px; font-weight: 800; color: var(--accent); letter-spacing: .06em; margin-bottom: 18px; }
-  .src .v { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; word-break: break-all; }
-  .src .u { margin-top: 14px; font-size: 26px; color: var(--muted); word-break: break-all; }
-  .note { margin-top: 44px; font-size: 30px; line-height: 1.6; color: var(--muted); font-weight: 500; }
-  .cta { margin-top: auto; display: flex; gap: 20px; }
-  .cta div { flex: 1; background: var(--ink); color: #fff; text-align: center; padding: 36px 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
-  .cta div:last-child { background: var(--accent); }
+  /* ── 본문 ──────────────────────────── */
+  .page .photo { height: 900px; }
+  .page .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,.05) 18%, rgba(5,5,5,.15) 50%, rgba(5,5,5,.9) 85%, var(--black) 100%); }
+  .page .content { position: absolute; left: 60px; right: 60px; bottom: 130px; z-index: 4; display: flex; flex-direction: column; }
+  .stitle { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 96px; line-height: 1.12; text-align: center; margin: 30px 0 36px; text-wrap: balance; }
+  .text { max-height: 420px; font-size: 52px; line-height: 1.58; font-weight: 600; color: #E9E9E9; letter-spacing: -.02em; text-align: center; overflow: hidden; text-wrap: pretty; }
+  .text mark { background: none; color: var(--accent); font-weight: 800; }
+  .foot { position: absolute; left: 60px; right: 60px; bottom: 52px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; color: #8A8A8A; z-index: 4; letter-spacing: .02em; }
+
+  /* ── 에디터의 시선 ──────────────────── */
+  .take .photo { height: 520px; opacity: .55; filter: grayscale(.6); }
+  .take .content { position: absolute; left: 70px; right: 70px; top: 300px; bottom: 140px; z-index: 4; display: flex; flex-direction: column; justify-content: center; }
+  .take .q { font-family: 'HeadEn', 'HeadKo'; font-size: 220px; line-height: .78; color: var(--accent); text-align: center; height: 150px; margin-top: 36px; }
+  .take .text { flex: 0 1 auto; max-height: 560px; font-size: 54px; line-height: 1.6; font-weight: 700; color: #fff; text-align: left; }
+  .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
+
+  /* ── 출처 / 마무리 ──────────────────── */
+  .outro .content { position: absolute; left: 70px; right: 70px; top: 190px; bottom: 120px; display: flex; flex-direction: column; align-items: center; }
+  .bigmark { font-family: 'HeadEn', 'HeadKo'; font-size: 200px; line-height: 1; letter-spacing: -.01em; }
+  .bigmark em { color: var(--accent); }
+  .tagline { font-family: 'HeadEn', 'HeadKo'; font-size: 40px; color: var(--sub); margin-top: 6px; letter-spacing: .02em; }
+  .src { width: 100%; margin-top: 70px; border: 2px solid rgba(255,255,255,.22); padding: 40px 44px; }
+  .src .k { font-family: 'HeadEn', 'HeadKo'; font-size: 28px; color: var(--accent); letter-spacing: .06em; margin-bottom: 14px; }
+  .src .v { font-size: 46px; font-weight: 800; word-break: break-all; }
+  .src .u { margin-top: 10px; font-size: 24px; color: #8A8A8A; word-break: break-all; }
+  .note { margin-top: 32px; font-size: 27px; line-height: 1.6; color: #9A9A9A; font-weight: 500; text-align: center; }
+  .cta { margin-top: auto; width: 100%; display: flex; gap: 18px; }
+  .cta div { flex: 1; text-align: center; padding: 30px 0; font-family: 'HeadEn', 'HeadKo'; font-size: 38px; letter-spacing: .02em; border: 3px solid #fff; }
+  .cta div:last-child { background: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
 
+{% macro top(n, cat=false) -%}
+<div class="top">
+  <div class="wordmark">WWN <small>WORLD WIDE NEWS</small>{% if cat %} <span class="cat">{{ category }}</span>{% endif %}</div>
+  <div class="pill">{{ n }}/{{ total }}</div>
+</div>
+{%- endmacro %}
+
 {# ① 표지 #}
-<section class="slide cover" id="s1" style="background-image:url('{{ image_url }}')">
-  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div>{{ date }}</div></div>
-  <div class="body">
-    <div class="tag">{{ category_en }} <span>· {{ category }}</span></div>
-    <h1 class="headline fit">{{ headline }}</h1>
-    {% if subheadline %}<p class="sub">{{ subheadline }}</p>{% endif %}
+<section class="slide cover" id="s1">
+  <div class="photo" style="background-image:url('{{ image_url }}')"></div>
+  {{ top(1, true) }}
+  <div class="bottom">
+    <div class="divider"><div class="badge">WWN</div></div>
+    <h1 class="headline fit">{{ headline_html }}</h1>
+    <div class="swipe">넘겨서 자세히 보기 ›</div>
   </div>
-  <div class="footer"><b>{{ brand.handle }}</b><span>옆으로 넘겨보세요 →</span></div>
 </section>
 
 {# ② 본문 #}
+{% set crops = ['20% 30%', '80% 40%', '50% 75%', '30% 60%', '70% 20%', '50% 50%'] %}
 {% for s in slides %}
 <section class="slide page" id="s{{ loop.index + 1 }}">
-  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % (loop.index + 1) }}</b> / {{ '%02d' % total }}</div></div>
-  <div class="ghost">{{ '%02d' % loop.index }}</div>
-  {% if loop.first %}<div class="thumb" style="background-image:url('{{ image_url }}')"></div>{% endif %}
+  <div class="photo" style="background-image:url('{{ image_url }}'); background-size: {{ 130 + (loop.index % 3) * 15 }}%; background-position: {{ crops[loop.index0 % 6] }}"></div>
+  {{ top(loop.index + 1) }}
   <div class="content">
-    <div class="kicker">{{ category }} · POINT {{ loop.index }}</div>
-    <h2 class="stitle">{{ s.title }}</h2>
+    <div class="divider"><span class="label">POINT {{ '%02d' % loop.index }}</span></div>
+    <h2 class="stitle">{{ s.title_html }}</h2>
     <p class="text fit">{{ s.body_html }}</p>
   </div>
-  <div class="footer"><span>{{ brand.handle }}</span><span>{{ source_label }}</span></div>
+  <div class="foot"><span>{{ brand.handle }}</span><span>출처 {{ source_label }}</span></div>
 </section>
 {% endfor %}
 
-{# ③ 내 생각 #}
+{# ③ 에디터의 시선 #}
 {% if my_take %}
 <section class="slide take" id="s{{ slides|length + 2 }}">
-  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % (slides|length + 2) }}</b> / {{ '%02d' % total }}</div></div>
+  <div class="photo" style="background-image:url('{{ image_url }}')"></div>
+  {{ top(slides|length + 2) }}
   <div class="content">
-    <div class="quote">“</div>
-    <div class="label">{{ brand.editor_label }}</div>
+    <div class="divider"><span class="label">{{ brand.editor_label }}</span></div>
+    <div class="q">“</div>
     <p class="text fit">{{ my_take }}</p>
     <div class="sign">— {{ brand.handle }}</div>
   </div>
-  <div class="footer"><span>{{ brand.handle }}</span><span>개인적인 의견입니다</span></div>
+  <div class="foot"><span>{{ brand.handle }}</span><span>개인적인 의견입니다</span></div>
 </section>
 {% endif %}
 
-{# ④ 출처 #}
-<section class="slide page outro" id="s{{ total }}">
-  <div class="topbar"><div class="brand"><i></i>{{ brand.name }}</div><div class="pno"><b>{{ '%02d' % total }}</b> / {{ '%02d' % total }}</div></div>
+{# ④ 출처 / 마무리 #}
+<section class="slide outro" id="s{{ total }}">
+  {{ top(total) }}
   <div class="content">
+    <div class="bigmark">W<em>W</em>N</div>
+    <div class="tagline">WORLD WIDE NEWS · 해외 이슈를 한국어로</div>
     <div class="src">
       <div class="k">SOURCE · 원문 출처</div>
       <div class="v">{{ source_label }}</div>
       <div class="u">{{ permalink }}</div>
     </div>
-    <p class="note">이 콘텐츠는 해외 게시물을 한국어로 번역·재구성하고 에디터의 의견을 더한 것입니다. {% if ai_image %}표지 이미지는 AI로 생성되었습니다.{% endif %}</p>
-    <div class="cta"><div>저장하고 다시 보기</div><div>팔로우 {{ brand.handle }}</div></div>
+    <p class="note">해외 게시물을 한국어로 번역·재구성하고 에디터의 의견을 더한 콘텐츠입니다.{% if ai_image %}<br>이미지는 AI로 생성되었습니다.{% endif %}</p>
+    <div class="cta"><div>저장해두기</div><div>팔로우 {{ brand.handle }}</div></div>
   </div>
-  <div class="footer"><span>{{ brand.handle }}</span><span>{{ date }}</span></div>
 </section>
 
 <script>
-  // 글자가 넘치면 폰트 크기를 줄여 박스 안에 맞춤
   function fitAll() {
     document.querySelectorAll('.fit').forEach(el => {
-      let size = parseFloat(getComputedStyle(el).fontSize);
-      const min = size * 0.6;
-      while ((el.scrollHeight > el.clientHeight + 1) && size > min) {
+      const cs = getComputedStyle(el);
+      let size = parseFloat(cs.fontSize);
+      const min = size * 0.55;
+      // 최대 높이를 넘을 때만 줄임 (영문 글꼴의 긴 글리프 여백은 무시)
+      const limit = parseFloat(cs.maxHeight) || el.clientHeight;
+      const over = () => el.scrollHeight > limit + size * 0.25;
+      while (over() && size > min) {
         size -= 2; el.style.fontSize = size + 'px';
       }
     });
