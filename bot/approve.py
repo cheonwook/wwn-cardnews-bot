@@ -71,6 +71,8 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     tz = cfg["publish"]["timezone"]
     out = POSTS_DIR / f"{datetime.now(ZoneInfo(tz)):%Y%m%d}-issue{number}-{tag}"
     out.mkdir(parents=True, exist_ok=True)
+    for old in out.glob("slide_*.jpg"):  # /redo 시 이전 결과 정리
+        old.unlink()
 
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
     max_slides = int(cfg["ai"].get("max_body_slides", cfg["ai"].get("body_slides", 3)))
