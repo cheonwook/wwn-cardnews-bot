@@ -116,7 +116,7 @@
 {# ① 표지 #}
 <section class="slide cover" id="s1">
   <div class="photo{% if cover_h < 1350 %} short{% endif %}" style="background-image:url('{{ image_url }}'){% if cover_h < 1350 %}; height: {{ cover_h }}px{% endif %}"></div>
-  {{ top(1, true) }}
+  {{ top(1) }}
   <div class="bottom">
     <div class="divider"><div class="badge">WWN</div></div>
     <h1 class="headline fit">{{ headline_html }}</h1>

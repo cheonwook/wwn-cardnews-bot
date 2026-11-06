@@ -11,6 +11,8 @@ from markupsafe import Markup, escape
 
 from .config import TEMPLATES_DIR, load_config
 
+OUTPUT_WIDTH = 2048  # 인스타 원문과 같은 해상도 (2048x2560, 4:5)
+
 CATEGORY_STYLE = {
     "정치": ("POLITICS", "#D7263D"),
     "시사": ("WORLD", "#2F5BEA"),
@@ -93,7 +95,8 @@ def render_slides(ctx: dict, out_dir: Path) -> list[Path]:
     paths = []
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={"width": 1080, "height": 1350}, device_scale_factor=1)
+        page = browser.new_page(viewport={"width": 1080, "height": 1350},
+                                device_scale_factor=OUTPUT_WIDTH / 1080)  # 1080 기준 레이아웃을 고해상도로
         page.goto(html_path.as_uri(), wait_until="networkidle")
         page.wait_for_function("document.body.dataset.fitted === '1'", timeout=20000)
         for i in range(1, ctx["total"] + 1):
