@@ -4,21 +4,22 @@
   "dir": "posts/20261106-issue1-manual",
   "image_urls": [
     "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261106-issue1-manual/slide_01.jpg",
-    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261106-issue1-manual/slide_02.jpg"
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261106-issue1-manual/slide_02.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261106-issue1-manual/slide_03.jpg"
   ],
-  "caption": "어린 시절의 한 조각이 된 목소리를 기억하며.\n‘곰돌이 푸’의 이요르를 연기한 성우 피터 컬런이 85세로 별세했다.\n그는 ‘트랜스포머’의 옵티머스 프라임 목소리도 맡았다.\n이요르를 연기하는 일을 사랑했던 그는 아이들의 얼굴이 환해지는 모습을 보는 것이 큰 기쁨이라고 말했다.\n\n어렸을 때 재미있게 봤던 애니메이션이고 친근한 목소리였는데, 너무 슬퍼.\n출처: @mindset.therapy\n\n#피터컬런 #PeterCullen #이요르 #곰돌이푸 #옵티머스프라임 #트랜스포머 #성우 #추모 #어린시절 #애니메이션 #카드뉴스 #해외이슈 #오늘의뉴스",
+  "caption": "어린 시절의 한 부분이 된 목소리를 기억해요. 🕊️\n성우 피터 컬런이 85세로 세상을 떠났어요.\n‘곰돌이 푸’의 이요르, ‘트랜스포머’의 옵티머스 프라임 목소리를 맡았죠.\n그는 이요르를 연기하며 아이들을 웃게 하는 일을 사랑했어요.\n자신의 목소리에 아이들 얼굴이 밝아지는 순간을 큰 기쁨으로 꼽았어요.\n\n어릴 때 재미있게 봤던 애니메이션이고, 참 친근한 목소리였는데 너무 슬퍼요. 🕊️\n\n출처: @mindset.therapy\n\n#피터컬런 #PeterCullen #이요르 #곰돌이푸 #옵티머스프라임 #트랜스포머 #성우 #추모 #어린시절추억 #카드뉴스 #해외이슈 #오늘의뉴스",
   "copy": {
-    "headline": "이요르 목소리 [[피터 컬런]], [[85세로 별세]]",
-    "subheadline": "아이들의 미소를 큰 기쁨으로 꼽았던 성우",
+    "headline": "[[피터 컬런]], 이요르 목소리 남기고 [[85세로 별세]]",
+    "subheadline": "아이들의 미소를 큰 기쁨으로 여긴 성우",
     "slides": [
       {
         "title": "미소를 남긴 [[목소리]]",
-        "body": "85세로 별세한 피터 컬런은 이요르와 옵티머스 프라임의 목소리를 맡았다. 아이들이 자신의 목소리에 환하게 웃는 모습을 큰 기쁨으로 꼽았다.",
-        "highlight": "아이들이 자신의 목소리에 환하게 웃는 모습"
+        "body": "피터 컬런이 85세로 별세했어요.\n이요르와 옵티머스 프라임의 목소리를 맡았죠.\n이요르 목소리에 아이들 얼굴이 밝아지는 걸 큰 기쁨으로 여겼어요.",
+        "highlight": "아이들 얼굴이 밝아지는 걸 큰 기쁨으로 여겼어요."
       }
     ],
-    "my_take": "어렸을 때 재미있게 봤던 애니메이션이고 친근한 목소리였는데, 너무 슬퍼.",
-    "caption": "어린 시절의 한 조각이 된 목소리를 기억하며.\n‘곰돌이 푸’의 이요르를 연기한 성우 피터 컬런이 85세로 별세했다.\n그는 ‘트랜스포머’의 옵티머스 프라임 목소리도 맡았다.\n이요르를 연기하는 일을 사랑했던 그는 아이들의 얼굴이 환해지는 모습을 보는 것이 큰 기쁨이라고 말했다.\n\n어렸을 때 재미있게 봤던 애니메이션이고 친근한 목소리였는데, 너무 슬퍼.\n출처: @mindset.therapy",
+    "my_take": "어릴 때 재미있게 봤던 애니메이션이고, 참 친근한 목소리였는데 너무 슬퍼요. 🕊️",
+    "caption": "어린 시절의 한 부분이 된 목소리를 기억해요. 🕊️\n성우 피터 컬런이 85세로 세상을 떠났어요.\n‘곰돌이 푸’의 이요르, ‘트랜스포머’의 옵티머스 프라임 목소리를 맡았죠.\n그는 이요르를 연기하며 아이들을 웃게 하는 일을 사랑했어요.\n자신의 목소리에 아이들 얼굴이 밝아지는 순간을 큰 기쁨으로 꼽았어요.\n\n어릴 때 재미있게 봤던 애니메이션이고, 참 친근한 목소리였는데 너무 슬퍼요. 🕊️\n\n출처: @mindset.therapy",
     "hashtags": [
       "피터컬런",
       "PeterCullen",
@@ -28,10 +29,9 @@
       "트랜스포머",
       "성우",
       "추모",
-      "어린시절",
-      "애니메이션"
+      "어린시절추억"
     ],
-    "image_prompt": "A quiet recording booth with a vintage studio microphone and a pair of headphones resting on an empty chair, soft warm light fading into gentle shadows, reflective and tender memorial atmosphere, editorial photography style, subtle film grain, vertical composition with generous negative space. No people, faces, characters, mascots, character-like objects, logos, flags, emblems, or text."
+    "image_prompt": "A quiet editorial photograph of an empty voice recording booth, a vintage studio microphone beside worn headphones on a wooden desk, soft warm light fading into gentle shadows, a subtle atmosphere of childhood nostalgia and remembrance, restrained composition, realistic textures, vertical framing. No people, faces, characters, mascots, character-like objects, logos, flags, emblems, or visible text."
   },
   "source": "https://www.instagram.com/p/DckTM2NjsSK/"
 }
