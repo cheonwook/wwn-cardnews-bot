@@ -115,7 +115,7 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
         try:
             _download(cand["media_url"], cover)
-            cover.write_bytes(remove_overlay_text(ai, cover.read_bytes(), cfg["ai"]["image_quality"]))
+            cover.write_bytes(remove_overlay_text(ai, cover.read_bytes(), cfg["ai"]["image_quality"], prefer="inpaint"))
             ai_image = False
         except Exception as e:
             gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")

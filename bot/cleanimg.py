@@ -21,7 +21,8 @@ def _jpeg(im: Image.Image, max_side: int | None = None) -> bytes:
     b = io.BytesIO(); im.save(b, "JPEG", quality=92); return b.getvalue()
 
 
-def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print) -> bytes:
+def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, prefer: str = "crop") -> bytes:
+    """prefer='crop': 글자 띠를 잘라냄(본문 사진용) / 'inpaint': 글자만 지우고 사진 전체를 살림(표지용)."""
     im = Image.open(io.BytesIO(data)); im.load()
     W, H = im.size
     try:
@@ -46,7 +47,7 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print) -> 
     if cur < 1:
         bands.append((cur, 1.0))
     best = max(bands, key=lambda t: t[1] - t[0], default=(0, 0))
-    if best[1] - best[0] >= MIN_KEEP:
+    if prefer == "crop" and best[1] - best[0] >= MIN_KEEP:
         log(f"글자 띠 잘라냄: 세로 {best[0]:.2f}~{best[1]:.2f} 사용")
         return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H))))
 
@@ -67,9 +68,21 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print) -> 
               "and reconstruct the photo there so it blends naturally with its surroundings. "
               "Keep everything outside the mask exactly as it is. Do not add any text.")
     try:
-        out = ai.edit_image(pb.getvalue(), mb.getvalue(), prompt, quality)
-        log(f"AI로 글자 영역 {len(editable)}곳 지움")
-        return out
+        edited = Image.open(io.BytesIO(ai.edit_image(pb.getvalue(), mb.getvalue(), prompt, quality))).convert("RGB")
     except Exception as e:
+        if best[1] - best[0] >= MIN_KEEP:
+            log(f"글자 지우기 실패, 글자 띠를 잘라서 사용: {e}")
+            return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H))))
         log(f"글자 지우기 실패, 원본 사용: {e}")
         return data
+    # 편집본에서 글자 영역만 원본에 붙여넣기 → 얼굴 등 나머지는 원본 화질 그대로
+    edited = edited.resize((W, H), Image.LANCZOS)
+    paste_mask = Image.new("L", (W, H), 0)
+    pd = ImageDraw.Draw(paste_mask)
+    for r in editable:
+        pd.rectangle([int((r["x0"] - PAD) * W), int((r["y0"] - PAD) * H),
+                      int((r["x1"] + PAD) * W), int((r["y1"] + PAD) * H)], fill=255)
+    result = im.convert("RGB").copy()
+    result.paste(edited, (0, 0), paste_mask)
+    log(f"AI로 글자 영역 {len(editable)}곳 지움 (나머지는 원본 유지)")
+    return _jpeg(result)
