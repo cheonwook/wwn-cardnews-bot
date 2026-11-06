@@ -35,7 +35,8 @@ def _emph(text: str) -> Markup:
     return Markup(safe.replace("[[", "").replace("]]", ""))
 
 
-def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, ai_image: bool) -> dict:
+def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, ai_image: bool,
+                  photos: list[str] | None = None) -> dict:
     category = cand.get("category") or "시사"
     cat_en, cat_color = CATEGORY_STYLE.get(category, ("WORLD", "#2F5BEA"))
     accent = brand.get("accent") or cat_color
@@ -47,7 +48,11 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
     show_take = bool(my_take) and bool(brand.get("editor_slide", False))
     show_outro = bool(brand.get("outro_slide", False))
     outro = brand.get("outro") or load_config().get("outro") or {}
-    total = 1 + len(slides) + (1 if show_take else 0) + (1 if show_outro else 0)
+    photos = photos or []
+    if photos:
+        slides = []  # 사진 모드: 본문 글 카드 대신 사진만
+    n_body = len(slides) + len(photos)
+    total = 1 + n_body + (1 if show_take else 0) + (1 if show_outro else 0)
     src = cand.get("source_account")
     source_label = f"@{src}" if src else f"Instagram {cand.get('source_type', '')}".strip()
     return {
@@ -56,7 +61,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
         "logo_url": logo.as_uri() if logo.exists() else None,
         "headline": copy.get("headline", ""), "headline_html": _emph(copy.get("headline", "")),
         "subheadline": copy.get("subheadline", ""),
-        "slides": slides, "my_take": my_take, "total": total,
+        "slides": slides, "photos": photos, "n_body": n_body, "my_take": my_take, "total": total,
         "show_take": show_take, "show_outro": show_outro,
         "outro": outro, "outro_tag1": _emph(outro.get("tagline1", "")),
         "image_url": image_url, "permalink": cand.get("permalink", ""),

@@ -34,7 +34,9 @@
   .toplogo { width: 68px; height: 68px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 3px rgba(255,255,255,.18), 0 4px 14px rgba(0,0,0,.45); flex: none; }
   .wordmark small { font-family: 'Pretendard'; font-weight: 700; font-size: 20px; letter-spacing: .16em; opacity: .85; }
   .wordmark .cat { font-family: 'Pretendard'; font-weight: 800; font-size: 22px; letter-spacing: 0; background: var(--accent); color: #fff; padding: 6px 14px; text-shadow: none; }
-  .pill { background: rgba(20,20,20,.55); border: 1px solid rgba(255,255,255,.18); border-radius: 40px; padding: 8px 22px; font-family: 'HeadEn', 'HeadKo'; font-size: 28px; letter-spacing: .04em; }
+  .handle-tag { font-family: 'Pretendard'; font-weight: 700; font-size: 27px; letter-spacing: .01em; color: #fff; opacity: .92; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+  .photoonly .photo { height: 1350px; }
+  .photoonly .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,0) 14%, rgba(5,5,5,0) 100%); }
 
   /* ── 로고 구분선 ────────────────────── */
   .divider { display: flex; align-items: center; gap: 22px; width: 100%; }
@@ -106,7 +108,7 @@
 {% macro top(n, cat=false) -%}
 <div class="top">
   <div class="wordmark">{% if logo_url %}<span class="toplogo" style="background-image:url('{{ logo_url }}')"></span>{% else %}WWN {% endif %}<small>WORLD WIDE NEWS</small>{% if cat %} <span class="cat">{{ category }}</span>{% endif %}</div>
-  <div class="pill">{{ n }}/{{ total }}</div>
+  <div class="handle-tag">{{ brand.handle }}</div>
 </div>
 {%- endmacro %}
 
@@ -132,22 +134,29 @@
     <h2 class="stitle">{{ s.title_html }}</h2>
     <p class="text fit">{{ s.body_html }}</p>
   </div>
-  <div class="foot"><span>{{ brand.handle }}</span></div>
+</section>
+{% endfor %}
+
+{# ②-2 사진만 (원문이 사진 위주일 때) #}
+{% for p in photos %}
+<section class="slide photoonly" id="s{{ loop.index + 1 }}">
+  <div class="photo" style="background-image:url('{{ p }}')"></div>
+  {{ top(loop.index + 1) }}
 </section>
 {% endfor %}
 
 {# ③ 에디터의 시선 #}
 {% if show_take %}
-<section class="slide take" id="s{{ slides|length + 2 }}">
+<section class="slide take" id="s{{ n_body + 2 }}">
   <div class="photo" style="background-image:url('{{ image_url }}')"></div>
-  {{ top(slides|length + 2) }}
+  {{ top(n_body + 2) }}
   <div class="content">
     <div class="divider"><span class="label">{{ brand.editor_label }}</span></div>
     <div class="q">“</div>
     <p class="text fit">{{ my_take }}</p>
     <div class="sign">— {{ brand.handle }}</div>
   </div>
-  <div class="foot"><span>{{ brand.handle }}</span><span>개인적인 의견입니다</span></div>
+  <div class="foot"><span></span><span>개인적인 의견입니다</span></div>
 </section>
 {% endif %}
 

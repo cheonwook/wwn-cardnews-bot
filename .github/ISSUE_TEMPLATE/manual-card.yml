@@ -33,13 +33,24 @@ body:
       render: text
     validations:
       required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: 본문 형식
+      description: 원문이 사진 위주면 '사진만'을 고르세요. 표지 다음 장들이 글 없이 사진만 들어가고 내용은 캡션에 담겨요
+      options: [텍스트 카드, 사진만]
   - type: textarea
     id: take
     attributes:
       label: 내 생각
-      description: 느낀 점이나 의견. 비워두면 '에디터의 시선' 장이 빠져요
+      description: 느낀 점이나 의견 한두 줄. 캡션에 해요체로 다듬어 들어가요
   - type: input
     id: image
     attributes:
       label: 표지 이미지 주소
       description: 비워두면 AI가 표지 이미지를 새로 만들어요. 직접 쓰려면 이미지 주소(https://...jpg)를 넣으세요
+  - type: textarea
+    id: photos
+    attributes:
+      label: 본문 사진 주소
+      description: (사진만 형식일 때) 한 줄에 하나씩. 비워두면 AI가 사진을 만들어요

@@ -51,7 +51,8 @@ class OpenAIClient:
         return self.chat_json(system, user).get("items", [])
 
     # ── 2) 승인 후: 카드뉴스 원고 ───────────────────────
-    def build_cardnews(self, cand: dict, my_take: str, max_slides: int, brand: dict) -> dict:
+    def build_cardnews(self, cand: dict, my_take: str, max_slides: int, brand: dict,
+                       photo_mode: bool = False, n_photos: int = 0) -> dict:
         system = (
             "너는 한국어 인스타그램 카드뉴스 전문 에디터다.\n"
             "규칙:\n"
@@ -72,7 +73,16 @@ class OpenAIClient:
             f"카테고리: {cand.get('category')}\n"
             f"원문 캡션:\n\"\"\"\n{cand.get('caption', '')[:3500]}\n\"\"\"\n\n"
             f"사용자의 생각(원문 그대로):\n\"\"\"\n{my_take.strip()}\n\"\"\"\n\n"
-            f"본문 슬라이드는 1~{max_slides}장 중 내용에 맞는 최소 장수. 다음 JSON 형식으로만 답하라:\n"
+            + (
+                f"[사진 모드] 카드에는 표지 제목 외에 글을 넣지 않는다. slides 는 빈 배열 []. "
+                + (f"photo_prompts 는 빈 배열 [] (사진은 사용자가 준비함). " if n_photos else
+                   f"photo_prompts 에 본문 사진 장면 1~{max_slides}개(내용 흐름에 맞는 최소 개수)를 영어로. 규칙 5와 같은 제한을 지킨다. ")
+                + "카드에 글이 없으므로 caption 이 본문 역할을 한다: 첫 줄 후킹 문장, 빈 줄, 핵심 내용 5~8줄(짧은 문단, 해요체), "
+                "빈 줄, 내 생각 1~2문장, 빈 줄, '출처: @계정'.\n"
+                if photo_mode else
+                f"본문 슬라이드는 1~{max_slides}장 중 내용에 맞는 최소 장수.\n"
+            )
+            + "다음 JSON 형식으로만 답하라:\n"
             "{\n"
             '  "headline": "표지 제목: 사실을 담은 한 문장, 18~34자. 가장 중요한 단어 2~3곳(인물·숫자·핵심 사건)을 [[ ]]로 감싼다. 예: \\"[[호날두]], 23년 만에 [[국가대표 은퇴]] 선언\\"",\n'
             '  "subheadline": "표지 부제 30자 이내",\n'
@@ -80,15 +90,19 @@ class OpenAIClient:
             '  "my_take": "다듬은 내 생각",\n'
             '  "caption": "인스타 캡션 본문: 첫 줄 후킹 문장, 3~5줄 요약, 빈 줄 후 my_take 와 같은 내용·말투의 내 생각 1~2문장(\'내 생각:\' 같은 라벨 없이), 마지막 줄 \'출처: @계정\' 표기. 해시태그 제외",\n'
             '  "hashtags": ["한글/영문 해시태그 8~12개, # 제외"],\n'
-            '  "image_prompt": "English prompt"\n'
+            '  "image_prompt": "English prompt",\n'
+            '  "photo_prompts": ["(사진 모드일 때만) English prompt", "..."]\n'
             "}"
         )
         return self.chat_json(system, user)
 
     # ── 3) 이미지 생성 ─────────────────────────────────
-    def generate_image(self, prompt: str, size: str, quality: str) -> bytes:
-        full = (prompt.strip() + ". Vertical editorial cover image for a news card, cinematic lighting, "
-                "strong focal subject, generous dark negative space in the lower third for headline text. "
+    def generate_image(self, prompt: str, size: str, quality: str, cover: bool = True) -> bytes:
+        frame = ("Vertical editorial cover image for a news card, cinematic lighting, "
+                 "strong focal subject, generous dark negative space in the lower third for headline text. "
+                 if cover else
+                 "Vertical full-frame editorial photograph, natural documentary style, cinematic lighting, subject fills the frame. ")
+        full = (prompt.strip() + ". " + frame +
                 "No text, no letters, no logos, no watermarks, no real identifiable people, "
                 "no cartoon/film/game characters or mascots.")
         payload = {"model": self.image_model, "prompt": full, "size": size,

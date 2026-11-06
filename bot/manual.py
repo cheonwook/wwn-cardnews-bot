@@ -24,6 +24,8 @@ FIELDS = {
     "원문 내용": "caption",
     "내 생각": "my_take",
     "표지 이미지 주소": "image_url",
+    "본문 형식": "format",
+    "본문 사진 주소": "photo_urls",
 }
 
 
@@ -77,6 +79,8 @@ def main():
         "source_type": "직접 입력",
         "category": category,
         "media_url": f.get("image_url") or None,
+        "format": "photo" if "사진" in (f.get("format") or "") else "text",
+        "photo_urls": [u.strip() for u in (f.get("photo_urls") or "").splitlines() if u.strip()],
     }
     image_mode = "original" if cand["media_url"] else "ai"
 

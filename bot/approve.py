@@ -66,30 +66,52 @@ def build_caption(copy: dict, cfg: dict) -> str:
     return f"{body}\n\n{tag_line}"
 
 
+def _download(url: str, path):
+    r = requests.get(url, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
+    r.raise_for_status()
+    if not r.headers.get("content-type", "").startswith("image/"):
+        raise ValueError("이미지 주소가 아닙니다")
+    path.write_bytes(r.content)
+    return path
+
+
 # ── 초안 만들기 (자동/반자동 공통) ───────────────────
 def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mode: str, tag: str) -> dict:
     tz = cfg["publish"]["timezone"]
     out = POSTS_DIR / f"{datetime.now(ZoneInfo(tz)):%Y%m%d}-issue{number}-{tag}"
     out.mkdir(parents=True, exist_ok=True)
-    for old in out.glob("slide_*.jpg"):  # /redo 시 이전 결과 정리
+    for old in [*out.glob("slide_*.jpg"), *out.glob("photo_*.jpg")]:  # /redo 시 이전 결과 정리
         old.unlink()
 
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
     max_slides = int(cfg["ai"].get("max_body_slides", cfg["ai"].get("body_slides", 3)))
-    copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"])
+    photo_mode = cand.get("format") == "photo"
+    given_photos = [u for u in (cand.get("photo_urls") or []) if u.startswith("http")][:max_slides]
+    copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"], photo_mode, len(given_photos))
     copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:max_slides]
-    if not copy["slides"]:
+    if not photo_mode and not copy["slides"]:
         raise RuntimeError("AI가 본문 슬라이드를 만들지 못했습니다. /redo 로 다시 시도하세요.")
+
+    # 사진 모드: 본문 사진 준비 (사용자가 준 주소 → 실패/없으면 AI 생성)
+    photo_uris = []
+    if photo_mode:
+        for i, u in enumerate(given_photos, 1):
+            try:
+                photo_uris.append(_download(u, out / f"photo_{i}.jpg").as_uri())
+            except Exception as e:
+                gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 건너뜁니다. ({e})")
+        if not photo_uris:
+            prompts = [p for p in (copy.get("photo_prompts") or []) if p][:max_slides] or [copy.get("image_prompt", "")]
+            for i, p in enumerate(prompts, 1):
+                path = out / f"photo_{i}.jpg"
+                path.write_bytes(ai.generate_image(p, cfg["ai"]["image_size"], cfg["ai"]["image_quality"], cover=False))
+                photo_uris.append(path.as_uri())
 
     cover = out / "cover.jpg"
     ai_image = True
     if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
         try:
-            r = requests.get(cand["media_url"], timeout=60, headers={"User-Agent": "Mozilla/5.0"})
-            r.raise_for_status()
-            if not r.headers.get("content-type", "").startswith("image/"):
-                raise ValueError("이미지 주소가 아닙니다")
-            cover.write_bytes(r.content)
+            _download(cand["media_url"], cover)
             ai_image = False
         except Exception as e:
             gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
@@ -97,7 +119,7 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
         cover.write_bytes(ai.generate_image(copy.get("image_prompt", cand.get("caption", "")[:300]),
                                             cfg["ai"]["image_size"], cfg["ai"]["image_quality"]))
 
-    ctx = build_context(copy, cand, cfg["brand"], cover.as_uri(), tz, ai_image)
+    ctx = build_context(copy, cand, cfg["brand"], cover.as_uri(), tz, ai_image, photo_uris)
     slides = render_slides(ctx, out)
     caption = build_caption(copy, cfg)
 
