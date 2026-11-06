@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
-from .config import TEMPLATES_DIR
+from .config import TEMPLATES_DIR, load_config
 
 CATEGORY_STYLE = {
     "정치": ("POLITICS", "#D7263D"),
@@ -46,6 +46,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
     my_take = (copy.get("my_take") or "").strip()
     show_take = bool(my_take) and bool(brand.get("editor_slide", False))
     show_outro = bool(brand.get("outro_slide", False))
+    outro = brand.get("outro") or load_config().get("outro") or {}
     total = 1 + len(slides) + (1 if show_take else 0) + (1 if show_outro else 0)
     src = cand.get("source_account")
     source_label = f"@{src}" if src else f"Instagram {cand.get('source_type', '')}".strip()
@@ -57,6 +58,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
         "subheadline": copy.get("subheadline", ""),
         "slides": slides, "my_take": my_take, "total": total,
         "show_take": show_take, "show_outro": show_outro,
+        "outro": outro, "outro_tag1": _emph(outro.get("tagline1", "")),
         "image_url": image_url, "permalink": cand.get("permalink", ""),
         "source_label": source_label, "ai_image": ai_image,
         "date": datetime.now(ZoneInfo(tz)).strftime("%Y.%m.%d"),
