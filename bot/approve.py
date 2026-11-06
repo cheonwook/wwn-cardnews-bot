@@ -122,6 +122,9 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     ctx = build_context(copy, cand, cfg["brand"], cover.as_uri(), tz, ai_image, photo_uris)
     slides = render_slides(ctx, out)
     caption = build_caption(copy, cfg)
+    used_original = (not ai_image) or (photo_mode and bool(given_photos) and len(photo_uris) > 0)
+    if used_original and "출처:" in caption:
+        caption = caption.replace("출처:", "출처·사진:", 1)  # 원문 사진 사용 시 사진 출처도 명시
 
     urls = host_images(slides, cfg["publish"]["image_host"], f"draft: issue #{number} ({tag})")
     draft = {"issue": number, "candidate": tag, "dir": str(out.relative_to(ROOT)),
