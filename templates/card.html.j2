@@ -101,7 +101,7 @@
   <div class="bottom">
     <div class="divider"><div class="badge">WWN</div></div>
     <h1 class="headline fit">{{ headline_html }}</h1>
-    <div class="swipe">넘겨서 자세히 보기 ›</div>
+    {% if total > 1 %}<div class="swipe">넘겨서 자세히 보기 ›</div>{% endif %}
   </div>
 </section>
 
@@ -116,12 +116,12 @@
     <h2 class="stitle">{{ s.title_html }}</h2>
     <p class="text fit">{{ s.body_html }}</p>
   </div>
-  <div class="foot"><span>{{ brand.handle }}</span><span>출처 {{ source_label }}</span></div>
+  <div class="foot"><span>{{ brand.handle }}</span></div>
 </section>
 {% endfor %}
 
 {# ③ 에디터의 시선 #}
-{% if my_take %}
+{% if show_take %}
 <section class="slide take" id="s{{ slides|length + 2 }}">
   <div class="photo" style="background-image:url('{{ image_url }}')"></div>
   {{ top(slides|length + 2) }}
@@ -135,7 +135,8 @@
 </section>
 {% endif %}
 
-{# ④ 출처 / 마무리 #}
+{# ④ 출처 / 마무리 (선택) #}
+{% if show_outro %}
 <section class="slide outro" id="s{{ total }}">
   {{ top(total) }}
   <div class="content">
@@ -150,6 +151,7 @@
     <div class="cta"><div>저장해두기</div><div>팔로우 {{ brand.handle }}</div></div>
   </div>
 </section>
+{% endif %}
 
 <script>
   function fitAll() {

@@ -7,6 +7,8 @@ brand:
   handle: "@wwn.daily"            # 카드 하단에 표시될 내 계정명
   name: "WWN · World Wide News"   # 표지 상단 브랜드명
   editor_label: "에디터의 시선"      # '내 생각' 슬라이드 제목
+  editor_slide: false             # true 면 '내 생각'을 별도 슬라이드로 (false 면 캡션에만)
+  outro_slide: false              # true 면 마지막에 출처/팔로우 안내 슬라이드 추가
   accent: "#4A90FF"               # 제목 강조색 (비우면 카테고리별 색 사용)
   navy: "#1B2A72"                 # 로고 배지 글자색 (templates/logo.png 가 있으면 로고 이미지 사용)
 
@@ -54,7 +56,7 @@ ai:
   image_model: "gpt-image-2.6-flare"
   image_size: "1088x1360"         # 4:5 세로형 (16의 배수). 실패 시 1024x1536 으로 재시도
   image_quality: "medium"         # low | medium | high
-  body_slides: 4                  # 본문 슬라이드 수 (3~6 권장)
+  max_body_slides: 3              # 본문 슬라이드 최대 수. 내용이 적으면 AI가 1~2장으로 줄임
 
 publish:
   require_preview: true           # true: /approve 후 미리보기 → /publish 해야 발행

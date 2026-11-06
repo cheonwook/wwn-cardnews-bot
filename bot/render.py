@@ -44,7 +44,9 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
                "body_html": _mark(s.get("body", ""), s.get("highlight", ""))}
               for s in copy.get("slides", [])]
     my_take = (copy.get("my_take") or "").strip()
-    total = 1 + len(slides) + (1 if my_take else 0) + 1
+    show_take = bool(my_take) and bool(brand.get("editor_slide", False))
+    show_outro = bool(brand.get("outro_slide", False))
+    total = 1 + len(slides) + (1 if show_take else 0) + (1 if show_outro else 0)
     src = cand.get("source_account")
     source_label = f"@{src}" if src else f"Instagram {cand.get('source_type', '')}".strip()
     return {
@@ -54,6 +56,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
         "headline": copy.get("headline", ""), "headline_html": _emph(copy.get("headline", "")),
         "subheadline": copy.get("subheadline", ""),
         "slides": slides, "my_take": my_take, "total": total,
+        "show_take": show_take, "show_outro": show_outro,
         "image_url": image_url, "permalink": cand.get("permalink", ""),
         "source_label": source_label, "ai_image": ai_image,
         "date": datetime.now(ZoneInfo(tz)).strftime("%Y.%m.%d"),

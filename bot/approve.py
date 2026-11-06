@@ -73,7 +73,11 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     out.mkdir(parents=True, exist_ok=True)
 
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
-    copy = ai.build_cardnews(cand, my_take, cfg["ai"]["body_slides"], cfg["brand"])
+    max_slides = int(cfg["ai"].get("max_body_slides", cfg["ai"].get("body_slides", 3)))
+    copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"])
+    copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:max_slides]
+    if not copy["slides"]:
+        raise RuntimeError("AI가 본문 슬라이드를 만들지 못했습니다. /redo 로 다시 시도하세요.")
 
     cover = out / "cover.jpg"
     ai_image = True
