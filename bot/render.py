@@ -66,8 +66,9 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
             cover_h = max(880, min(1350, round(1080 * h / w)))  # 좌우 살짝만 잘림
     except Exception:
         pass
+    cover_style = load_config().get("cover") or {}
     return {
-        "cover_h": cover_h,
+        "cover_h": cover_h, "cover_style": cover_style,
         "brand": brand, "category": category, "category_en": cat_en, "accent": accent,
         "brand_navy": brand.get("navy", "#1B2A72"),
         "logo_url": logo.as_uri() if logo.exists() else None,
