@@ -57,6 +57,7 @@
 
   /* ── 표지 ──────────────────────────── */
   .cover .photo { height: 1350px; }
+  .cover .photo.short::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 70%, rgba(5,5,5,.75) 88%, var(--black) 100%) !important; }
   .cover .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 46%, rgba(5,5,5,.78) 66%, rgba(5,5,5,.96) 82%, var(--black) 100%); }
   .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 54px; max-height: 650px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 22px; }
   .cover .badge { width: 84px; height: 84px; }
@@ -117,14 +118,14 @@
 
 
 <section class="slide cover" id="s1">
-  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/cover.jpg')"></div>
+  <div class="photo short" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/cover.jpg'); height: 880px"></div>
   <div class="top">
   <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small> <span class="cat">사회</span></div>
   <div class="handle-tag">@wwn.daily</div>
 </div>
   <div class="bottom">
     <div class="divider"><div class="badge">WWN</div></div>
-    <h1 class="headline fit">같은 특징을 가진 <em>소년</em>과 <em>고양이</em>, 가족이 되다</h1>
+    <h1 class="headline fit">서로 다른 눈 색을 가진 <em>소년</em>과 <em>고양이</em>의 만남</h1>
     <div class="swipe">넘겨서 자세히 보기 ›</div>
   </div>
 </section>
