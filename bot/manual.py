@@ -29,6 +29,12 @@ FIELDS = {
 }
 
 
+def _clean_url(u: str | None) -> str:
+    """양식/도구가 붙이는 `백틱`, <꺾쇠>, 마크다운 링크 등을 벗겨 순수 URL 만."""
+    m = re.search(r"https?://[^\s`<>()\[\]\"']+", u or "")
+    return m.group(0) if m else ""
+
+
 def parse_form(body: str) -> dict:
     """GitHub Issue 양식 본문(### 제목 + 값)을 dict 로."""
     out, key, buf = {}, None, []
@@ -78,9 +84,9 @@ def main():
         "source_account": account or None,
         "source_type": "직접 입력",
         "category": category,
-        "media_url": f.get("image_url") or None,
+        "media_url": _clean_url(f.get("image_url")) or None,
         "format": "photo" if "사진" in (f.get("format") or "") else "text",
-        "photo_urls": [u.strip() for u in (f.get("photo_urls") or "").splitlines() if u.strip()],
+        "photo_urls": [c for c in (_clean_url(u) for u in (f.get("photo_urls") or "").splitlines()) if c],
     }
     image_mode = "original" if cand["media_url"] else "ai"
 
