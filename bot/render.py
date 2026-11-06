@@ -55,7 +55,17 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
     total = 1 + n_body + (1 if show_take else 0) + (1 if show_outro else 0)
     src = cand.get("source_account")
     source_label = f"@{src}" if src else f"Instagram {cand.get('source_type', '')}".strip()
+    cover_h = 1350
+    try:  # 가로로 넓은 표지 사진은 잘리지 않게 위쪽에 꽉 맞추고 아래는 검정으로 페이드
+        from urllib.parse import unquote, urlparse
+        from PIL import Image
+        if image_url.startswith("file:"):
+            w, h = Image.open(unquote(urlparse(image_url).path)).size
+            cover_h = max(880, min(1350, round(1080 * h / w)))  # 좌우 살짝만 잘림
+    except Exception:
+        pass
     return {
+        "cover_h": cover_h,
         "brand": brand, "category": category, "category_en": cat_en, "accent": accent,
         "brand_navy": brand.get("navy", "#1B2A72"),
         "logo_url": logo.as_uri() if logo.exists() else None,
