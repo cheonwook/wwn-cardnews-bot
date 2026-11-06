@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>WWN cardnews</title>
+<style>
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 400; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Regular.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 500; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Medium.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 700; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Bold.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 800; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-ExtraBold.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 900; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Black.woff2') format('woff2'); }
+  
+  /* 영문·숫자 → Anton(압축형), 한글 → Black Han Sans 로 자동 분기 */
+  @font-face { font-family: 'HeadKo'; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/BlackHanSans-Regular.ttf'); }
+  @font-face { font-family: 'HeadEn'; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Anton-Regular.ttf'); unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2027, U+20A0-20CF; }
+
+  :root {
+    --accent: #4A90FF;
+    --navy: #1B2A72;
+    --black: #050505;
+    --sub: #BDBDBD;
+    --line: rgba(255,255,255,.55);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; font-family: 'Pretendard', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
+  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; margin-bottom: 40px; background: var(--black); color: #fff; }
+  em { font-style: normal; color: var(--accent); }
+
+  /* ── 사진 + 검정 페이드 ─────────────── */
+  .photo { position: absolute; left: 0; right: 0; top: 0; background: center/cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5,5,5,.35) 0%, rgba(5,5,5,0) 14%, rgba(5,5,5,0) 52%, rgba(5,5,5,.85) 82%, var(--black) 100%); }
+
+  /* ── 상단 크롬 ─────────────────────── */
+  .top { position: absolute; top: 48px; left: 52px; right: 52px; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
+  .wordmark { font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: .04em; display: flex; align-items: center; gap: 14px; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+  .toplogo { width: 68px; height: 68px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 3px rgba(255,255,255,.18), 0 4px 14px rgba(0,0,0,.45); flex: none; }
+  .wordmark small { font-family: 'Pretendard'; font-weight: 700; font-size: 20px; letter-spacing: .16em; opacity: .85; }
+  .wordmark .cat { font-family: 'Pretendard'; font-weight: 800; font-size: 22px; letter-spacing: 0; background: var(--accent); color: #fff; padding: 6px 14px; text-shadow: none; }
+  .pill { background: rgba(20,20,20,.55); border: 1px solid rgba(255,255,255,.18); border-radius: 40px; padding: 8px 22px; font-family: 'HeadEn', 'HeadKo'; font-size: 28px; letter-spacing: .04em; }
+
+  /* ── 로고 구분선 ────────────────────── */
+  .divider { display: flex; align-items: center; gap: 22px; width: 100%; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 3px; background: var(--line); }
+  .badge { width: 76px; height: 76px; border-radius: 50%; background: #fff; color: var(--navy); display: grid; place-items: center;
+           font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: -.01em; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+  .badge { width: 104px; height: 104px; background: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png') center/cover no-repeat; color: transparent; box-shadow: 0 0 0 5px rgba(255,255,255,.14), 0 6px 24px rgba(0,0,0,.5); }
+  .biglogo { width: 300px; height: 300px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 8px rgba(255,255,255,.08); margin-bottom: 30px; }
+  .divider .label { font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); letter-spacing: .03em; }
+
+  /* ── 표지 ──────────────────────────── */
+  .cover .photo { height: 1350px; }
+  .cover .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 46%, rgba(5,5,5,.78) 66%, rgba(5,5,5,.96) 82%, var(--black) 100%); }
+  .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 54px; max-height: 650px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .cover .badge { width: 84px; height: 84px; }
+  .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 104px; line-height: 1.0; text-align: center; letter-spacing: -.045em; word-spacing: -.04em; text-wrap: balance;
+              max-height: 330px; padding-top: .04em; overflow: hidden; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+  .swipe { font-family: 'HeadEn', 'HeadKo'; font-size: 32px; letter-spacing: .04em; opacity: .95; }
+
+  /* ── 본문 ──────────────────────────── */
+  .page .photo { height: 900px; }
+  .page .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,.05) 18%, rgba(5,5,5,.15) 50%, rgba(5,5,5,.9) 85%, var(--black) 100%); }
+  .page .content { position: absolute; left: 60px; right: 60px; bottom: 130px; z-index: 4; display: flex; flex-direction: column; }
+  .stitle { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 92px; line-height: 1.02; letter-spacing: -.04em; text-align: center; margin: 30px 0 36px; text-wrap: balance; }
+  .text { max-height: 420px; font-size: 52px; line-height: 1.58; font-weight: 600; color: #E9E9E9; letter-spacing: -.02em; text-align: center; overflow: hidden; text-wrap: pretty; }
+  .text mark { background: none; color: var(--accent); font-weight: 800; }
+  .foot { position: absolute; left: 60px; right: 60px; bottom: 52px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; color: #8A8A8A; z-index: 4; letter-spacing: .02em; }
+
+  /* ── 에디터의 시선 ──────────────────── */
+  .take .photo { height: 520px; opacity: .55; filter: grayscale(.6); }
+  .take .content { position: absolute; left: 70px; right: 70px; top: 300px; bottom: 140px; z-index: 4; display: flex; flex-direction: column; justify-content: center; }
+  .take .q { font-family: 'HeadEn', 'HeadKo'; font-size: 220px; line-height: .78; color: var(--accent); text-align: center; height: 150px; margin-top: 36px; }
+  .take .text { flex: 0 1 auto; max-height: 560px; font-size: 54px; line-height: 1.6; font-weight: 700; color: #fff; text-align: left; }
+  .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
+
+  /* ── 출처 / 마무리 ──────────────────── */
+  .outro .content { position: absolute; left: 70px; right: 70px; top: 160px; bottom: 120px; display: flex; flex-direction: column; align-items: center; }
+  .bigmark { font-family: 'HeadEn', 'HeadKo'; font-size: 200px; line-height: 1; letter-spacing: -.01em; }
+  .bigmark em { color: var(--accent); }
+  .tagline { font-family: 'HeadEn', 'HeadKo'; font-size: 40px; color: var(--sub); margin-top: 6px; letter-spacing: .02em; }
+  .src { width: 100%; margin-top: 70px; border: 2px solid rgba(255,255,255,.22); padding: 40px 44px; }
+  .src .k { font-family: 'HeadEn', 'HeadKo'; font-size: 28px; color: var(--accent); letter-spacing: .06em; margin-bottom: 14px; }
+  .src .v { font-size: 46px; font-weight: 800; word-break: break-all; }
+  .src .u { margin-top: 10px; font-size: 24px; color: #8A8A8A; word-break: break-all; }
+  .note { margin-top: 32px; font-size: 27px; line-height: 1.6; color: #9A9A9A; font-weight: 500; text-align: center; }
+  .cta { margin-top: auto; width: 100%; display: flex; gap: 18px; }
+  .cta div { flex: 1; text-align: center; padding: 30px 0; font-family: 'HeadEn', 'HeadKo'; font-size: 38px; letter-spacing: .02em; border: 3px solid #fff; }
+  .cta div:last-child { background: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+
+
+
+<section class="slide cover" id="s1">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg')"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small> <span class="cat">연예</span></div>
+  <div class="pill">1/7</div>
+</div>
+  <div class="bottom">
+    <div class="divider"><div class="badge">WWN</div></div>
+    <h1 class="headline fit"><em>이요르</em> 목소리 <em>피터 컬런</em>, <em>85세로 별세</em></h1>
+    <div class="swipe">넘겨서 자세히 보기 ›</div>
+  </div>
+</section>
+
+
+
+
+<section class="slide page" id="s2">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg'); background-size: 145%; background-position: 20% 30%"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">2/7</div>
+</div>
+  <div class="content">
+    <div class="divider"><span class="label">POINT 01</span></div>
+    <h2 class="stitle"><em>피터 컬런</em> 별세</h2>
+    <p class="text fit">성우 피터 컬런이 <mark>85세로 세상을 떠났습니다</mark>. ‘곰돌이 푸’의 이요르를 연기한 목소리였습니다.</p>
+  </div>
+  <div class="foot"><span>@wwn.daily</span><span>출처 @mindset.therapy</span></div>
+</section>
+
+<section class="slide page" id="s3">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg'); background-size: 160%; background-position: 80% 40%"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">3/7</div>
+</div>
+  <div class="content">
+    <div class="divider"><span class="label">POINT 02</span></div>
+    <h2 class="stitle">또 다른 <em>대표 역할</em></h2>
+    <p class="text fit">그는 ‘트랜스포머’의 <mark>옵티머스 프라임 목소리</mark>도 맡았습니다. 이요르를 연기하는 일에는 남다른 애정을 전했습니다.</p>
+  </div>
+  <div class="foot"><span>@wwn.daily</span><span>출처 @mindset.therapy</span></div>
+</section>
+
+<section class="slide page" id="s4">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg'); background-size: 130%; background-position: 50% 75%"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">4/7</div>
+</div>
+  <div class="content">
+    <div class="divider"><span class="label">POINT 03</span></div>
+    <h2 class="stitle"><em>이요르</em>의 인사</h2>
+    <p class="text fit">그는 이요르가 참 매력적이라 연기가 즐거웠다고 말했습니다. 아이들에게는 이요르 목소리로 “안녕. <mark>날 알아봐 줘서 고마워</mark>”라고 인사하곤 했습니다.</p>
+  </div>
+  <div class="foot"><span>@wwn.daily</span><span>출처 @mindset.therapy</span></div>
+</section>
+
+<section class="slide page" id="s5">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg'); background-size: 145%; background-position: 30% 60%"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">5/7</div>
+</div>
+  <div class="content">
+    <div class="divider"><span class="label">POINT 04</span></div>
+    <h2 class="stitle">아이들이 준 <em>기쁨</em></h2>
+    <p class="text fit">그 인사를 들은 <mark>아이들의 얼굴은 환해졌습니다</mark>. 그는 그 모습을 보는 것이 자신에게 큰 기쁨 중 하나라고 말했습니다.</p>
+  </div>
+  <div class="foot"><span>@wwn.daily</span><span>출처 @mindset.therapy</span></div>
+</section>
+
+
+
+
+<section class="slide take" id="s6">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue1-manual/cover.jpg')"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">6/7</div>
+</div>
+  <div class="content">
+    <div class="divider"><span class="label">에디터의 시선</span></div>
+    <div class="q">“</div>
+    <p class="text fit">어렸을 때 재미있게 봤던 애니메이션이고 친근한 목소리였는데, 너무 슬퍼.</p>
+    <div class="sign">— @wwn.daily</div>
+  </div>
+  <div class="foot"><span>@wwn.daily</span><span>개인적인 의견입니다</span></div>
+</section>
+
+
+
+<section class="slide outro" id="s7">
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="pill">7/7</div>
+</div>
+  <div class="content">
+    <div class="biglogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></div>
+    <div class="tagline">WORLD WIDE NEWS · 해외 이슈를 한국어로</div>
+    <div class="src">
+      <div class="k">SOURCE · 원문 출처</div>
+      <div class="v">@mindset.therapy</div>
+      <div class="u">https://www.instagram.com/p/DckTM2NjsSK/</div>
+    </div>
+    <p class="note">해외 게시물을 한국어로 번역·재구성하고 에디터의 의견을 더한 콘텐츠입니다.<br>이미지는 AI로 생성되었습니다.</p>
+    <div class="cta"><div>저장해두기</div><div>팔로우 @wwn.daily</div></div>
+  </div>
+</section>
+
+<script>
+  function fitAll() {
+    document.querySelectorAll('.fit').forEach(el => {
+      const cs = getComputedStyle(el);
+      let size = parseFloat(cs.fontSize);
+      const min = size * 0.55;
+      // 최대 높이를 넘을 때만 줄임 (영문 글꼴의 긴 글리프 여백은 무시)
+      const limit = parseFloat(cs.maxHeight) || el.clientHeight;
+      const over = () => el.scrollHeight > limit + size * 0.25;
+      while (over() && size > min) {
+        size -= 2; el.style.fontSize = size + 'px';
+      }
+    });
+    document.body.dataset.fitted = '1';
+  }
+  document.fonts.ready.then(fitAll);
+</script>
+</body>
+</html>
