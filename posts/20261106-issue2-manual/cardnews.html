@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>WWN cardnews</title>
+<style>
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 400; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Regular.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 500; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Medium.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 700; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Bold.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 800; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-ExtraBold.woff2') format('woff2'); }
+  
+  @font-face { font-family: 'Pretendard'; font-weight: 900; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Pretendard-Black.woff2') format('woff2'); }
+  
+  /* 영문·숫자 → Anton(압축형), 한글 → Black Han Sans 로 자동 분기 */
+  @font-face { font-family: 'HeadKo'; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/BlackHanSans-Regular.ttf'); }
+  @font-face { font-family: 'HeadEn'; src: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/fonts/Anton-Regular.ttf'); unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2027, U+20A0-20CF; }
+
+  :root {
+    --accent: #4A90FF;
+    --navy: #1B2A72;
+    --black: #050505;
+    --sub: #BDBDBD;
+    --line: rgba(255,255,255,.55);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #333; font-family: 'Pretendard', sans-serif; word-break: keep-all; -webkit-font-smoothing: antialiased; }
+  .slide { width: 1080px; height: 1350px; position: relative; overflow: hidden; margin-bottom: 40px; background: var(--black); color: #fff; }
+  em { font-style: normal; color: var(--accent); }
+
+  /* ── 사진 + 검정 페이드 ─────────────── */
+  .photo { position: absolute; left: 0; right: 0; top: 0; background: center/cover no-repeat; }
+  .photo::after { content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(5,5,5,.35) 0%, rgba(5,5,5,0) 14%, rgba(5,5,5,0) 52%, rgba(5,5,5,.85) 82%, var(--black) 100%); }
+
+  /* ── 상단 크롬 ─────────────────────── */
+  .top { position: absolute; top: 48px; left: 52px; right: 52px; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
+  .wordmark { font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: .04em; display: flex; align-items: center; gap: 14px; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+  .toplogo { width: 68px; height: 68px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 3px rgba(255,255,255,.18), 0 4px 14px rgba(0,0,0,.45); flex: none; }
+  .wordmark small { font-family: 'Pretendard'; font-weight: 700; font-size: 20px; letter-spacing: .16em; opacity: .85; }
+  .wordmark .cat { font-family: 'Pretendard'; font-weight: 800; font-size: 22px; letter-spacing: 0; background: var(--accent); color: #fff; padding: 6px 14px; text-shadow: none; }
+  .handle-tag { font-family: 'Pretendard'; font-weight: 700; font-size: 27px; letter-spacing: .01em; color: #fff; opacity: .92; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+  .photoonly .photo { height: 1350px; }
+  .photoonly .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,0) 14%, rgba(5,5,5,0) 100%); }
+
+  /* ── 로고 구분선 ────────────────────── */
+  .divider { display: flex; align-items: center; gap: 22px; width: 100%; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 3px; background: var(--line); }
+  .badge { width: 76px; height: 76px; border-radius: 50%; background: #fff; color: var(--navy); display: grid; place-items: center;
+           font-family: 'HeadEn', 'HeadKo'; font-size: 30px; letter-spacing: -.01em; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+  .badge { width: 104px; height: 104px; background: url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png') center/cover no-repeat; color: transparent; box-shadow: 0 0 0 5px rgba(255,255,255,.14), 0 6px 24px rgba(0,0,0,.5); }
+  .biglogo { width: 300px; height: 300px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 8px rgba(255,255,255,.08); margin-bottom: 30px; }
+  .divider .label { font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); letter-spacing: .03em; }
+
+  /* ── 표지 ──────────────────────────── */
+  .cover .photo { height: 1350px; }
+  .cover .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 46%, rgba(5,5,5,.78) 66%, rgba(5,5,5,.96) 82%, var(--black) 100%); }
+  .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 54px; max-height: 650px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .cover .badge { width: 84px; height: 84px; }
+  .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 104px; line-height: 1.0; text-align: center; letter-spacing: -.045em; word-spacing: -.04em; text-wrap: balance;
+              max-height: 330px; padding-top: .04em; overflow: hidden; text-shadow: 0 2px 12px rgba(0,0,0,.35); }
+  .swipe { font-family: 'HeadEn', 'HeadKo'; font-size: 32px; letter-spacing: .04em; opacity: .95; }
+
+  /* ── 본문 ──────────────────────────── */
+  .page .photo { height: 900px; }
+  .page .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.45) 0%, rgba(5,5,5,.05) 18%, rgba(5,5,5,.15) 50%, rgba(5,5,5,.9) 85%, var(--black) 100%); }
+  .page .content { position: absolute; left: 60px; right: 60px; bottom: 130px; z-index: 4; display: flex; flex-direction: column; }
+  .stitle { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 92px; line-height: 1.02; letter-spacing: -.04em; text-align: center; margin: 30px 0 36px; text-wrap: balance; }
+  .text { max-height: 420px; font-size: 52px; line-height: 1.58; font-weight: 600; color: #E9E9E9; letter-spacing: -.02em; text-align: center; overflow: hidden; text-wrap: pretty; }
+  .text mark { background: none; color: var(--accent); font-weight: 800; }
+  .foot { position: absolute; left: 60px; right: 60px; bottom: 52px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; color: #8A8A8A; z-index: 4; letter-spacing: .02em; }
+
+  /* ── 에디터의 시선 ──────────────────── */
+  .take .photo { height: 520px; opacity: .55; filter: grayscale(.6); }
+  .take .content { position: absolute; left: 70px; right: 70px; top: 300px; bottom: 140px; z-index: 4; display: flex; flex-direction: column; justify-content: center; }
+  .take .q { font-family: 'HeadEn', 'HeadKo'; font-size: 220px; line-height: .78; color: var(--accent); text-align: center; height: 150px; margin-top: 36px; }
+  .take .text { flex: 0 1 auto; max-height: 560px; font-size: 54px; line-height: 1.6; font-weight: 700; color: #fff; text-align: left; }
+  .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
+
+  /* ── 출처 / 마무리 ──────────────────── */
+  /* ── 마무리: 팔로우 유도 카드 ───────── */
+  .outro .bg { position: absolute; inset: -40px; background: center/cover no-repeat; filter: blur(14px) saturate(.8); transform: scale(1.06); }
+  .outro .bg::after { content: ''; position: absolute; inset: 0; background: rgba(8,10,16,.72); }
+  .outro .head { position: absolute; top: 112px; left: 0; right: 0; text-align: center; z-index: 3; }
+  .o-ko { font-weight: 900; font-size: 92px; letter-spacing: -.04em; color: var(--accent); line-height: 1.1; }
+  .o-en { font-family: 'Pretendard'; font-weight: 900; font-size: 64px; letter-spacing: -.01em; color: var(--accent); line-height: 1.1; margin-top: 8px; }
+  .o-tag { margin-top: 64px; font-size: 44px; line-height: 1.5; font-weight: 500; color: #F2F2F2; letter-spacing: -.02em; }
+  .o-tag em { font-weight: 900; }
+  .o-handle { margin-top: 48px; font-size: 44px; font-weight: 600; color: var(--accent); }
+  .phone { position: absolute; left: 50%; top: 700px; width: 560px; height: 700px; transform: translateX(-50%); z-index: 3;
+           background: #0B0C10; border-radius: 52px 52px 0 0; border: 2px solid rgba(255,255,255,.08); padding: 46px 34px 0; color: #fff; }
+  .ph-top { display: flex; justify-content: space-between; align-items: center; font-size: 34px; font-weight: 800; letter-spacing: -.01em; }
+  .ph-top i { font-style: normal; font-size: 30px; letter-spacing: .1em; }
+  .ph-prof { display: flex; gap: 30px; align-items: center; margin-top: 30px; }
+  .ph-av { width: 150px; height: 150px; border-radius: 50%; flex: none; background: #fff center/cover no-repeat; }
+  .ph-name { font-size: 24px; font-weight: 700; }
+  .ph-stats { display: flex; gap: 34px; margin-top: 30px; font-size: 24px; color: #D6D6D6; }
+  .ph-bubble { position: absolute; left: -78px; right: -78px; top: 270px; background: #fff; color: #111; border-radius: 26px;
+               text-align: center; font-size: 36px; line-height: 1.42; font-weight: 600; padding: 26px 20px; letter-spacing: -.02em; box-shadow: 0 10px 40px rgba(0,0,0,.45); }
+  .ph-btns { display: flex; gap: 10px; margin-top: 168px; }
+  .ph-btns div { flex: 1; text-align: center; padding: 14px 0; border-radius: 12px; font-size: 24px; font-weight: 700; background: #2A2C33; }
+  .ph-btns div:first-child { background: #4F6CF7; }
+  .ph-btns b { flex: 0 0 56px; border-radius: 12px; background: #2A2C33; }
+  .cursor { position: absolute; left: 196px; top: 440px; width: 74px; filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+  .ph-hl { display: flex; justify-content: space-between; margin-top: 28px; }
+  .ph-hl > div { width: 88px; text-align: center; font-size: 17px; color: #D6D6D6; }
+  .ph-hl span { display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%; background: #fff; border: 5px solid #2E3038;
+                color: var(--accent); font-weight: 900; font-size: 30px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+
+
+
+<section class="slide cover" id="s1">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/cover.jpg')"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small> <span class="cat">사회</span></div>
+  <div class="handle-tag">@wwn.daily</div>
+</div>
+  <div class="bottom">
+    <div class="divider"><div class="badge">WWN</div></div>
+    <h1 class="headline fit">자신과 닮은 <em>고양이</em>를 입양한 <em>소년</em></h1>
+    <div class="swipe">넘겨서 자세히 보기 ›</div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<section class="slide photoonly" id="s2">
+  <div class="photo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/photo_1.jpg')"></div>
+  <div class="top">
+  <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
+  <div class="handle-tag">@wwn.daily</div>
+</div>
+</section>
+
+
+
+
+
+
+
+<section class="slide outro" id="s3">
+  <div class="bg" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/cover.jpg')"></div>
+  <div class="head">
+    <div class="o-ko">월드와이드뉴스</div>
+    <div class="o-en">WORLD WIDE NEWS</div>
+    <div class="o-tag">세계의 모든 <em>이슈</em>를 담다<br>매일 업데이트 되는 해외 이슈 카드뉴스</div>
+    <div class="o-handle">@wwn.daily</div>
+  </div>
+  <div class="phone">
+    <div class="ph-top">wwn.daily<i>···</i></div>
+    <div class="ph-prof">
+      <div class="ph-av" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></div>
+      <div>
+        <div class="ph-name">WWN 월드와이드뉴스 | 해외이슈</div>
+        <div class="ph-stats"><span>posts</span><span>followers</span><span>following</span></div>
+      </div>
+    </div>
+    <div class="ph-bubble">팔로우를 누르고<br>세계 소식을 가장 쉽게 만나보세요</div>
+    <div class="ph-btns"><div>Follow</div><div>Message</div><b></b></div>
+    <svg class="cursor" viewBox="0 0 24 24"><path d="M3 2 L3 20 L8 15.5 L11.5 22.5 L14.5 21 L11 14 L18 14 Z" fill="#111" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+    <div class="ph-hl">
+      <div><span>정</span>Politics</div><div><span>경</span>Economy</div><div><span>사</span>Society</div><div><span>연</span>Celeb</div><div><span>시</span>World</div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  function fitAll() {
+    document.querySelectorAll('.fit').forEach(el => {
+      const cs = getComputedStyle(el);
+      let size = parseFloat(cs.fontSize);
+      const min = size * 0.55;
+      // 최대 높이를 넘을 때만 줄임 (영문 글꼴의 긴 글리프 여백은 무시)
+      const limit = parseFloat(cs.maxHeight) || el.clientHeight;
+      const over = () => el.scrollHeight > limit + size * 0.25;
+      while (over() && size > min) {
+        size -= 2; el.style.fontSize = size + 'px';
+      }
+    });
+    document.body.dataset.fitted = '1';
+  }
+  document.fonts.ready.then(fitAll);
+</script>
+</body>
+</html>
