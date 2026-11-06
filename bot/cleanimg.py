@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import io
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 MIN_KEEP = 0.45   # 잘라낸 뒤 원본 높이의 최소 비율
 PAD = 0.015
+BLEND = 0.10   # 글자 띠 위아래로 더 넓혀서 지움 (원문 디자인의 어두운 그라데이션까지 포함)
 
 
 def _jpeg(im: Image.Image, max_side: int | None = None) -> bytes:
@@ -19,6 +20,14 @@ def _jpeg(im: Image.Image, max_side: int | None = None) -> bytes:
     if max_side and max(im.size) > max_side:
         im = im.copy(); im.thumbnail((max_side, max_side))
     b = io.BytesIO(); im.save(b, "JPEG", quality=92); return b.getvalue()
+
+
+def _grow(r: dict, W: int, H: int) -> list[int]:
+    """글자 박스를 넓힘. 가로로 긴 띠(제목 영역)는 위아래로 BLEND 만큼 더."""
+    band = (r["x1"] - r["x0"]) > 0.6
+    ext = BLEND if band else PAD
+    return [int(max(0, r["x0"] - PAD) * W), int(max(0, r["y0"] - ext) * H),
+            int(min(1, r["x1"] + PAD) * W), int(min(1, r["y1"] + ext) * H)]
 
 
 def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, prefer: str = "crop") -> bytes:
@@ -59,9 +68,9 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, pre
     src = im.convert("RGBA")
     mask = Image.new("RGBA", src.size, (0, 0, 0, 255))
     d = ImageDraw.Draw(mask)
-    for r in editable:
-        d.rectangle([int((r["x0"] - PAD) * W), int((r["y0"] - PAD) * H),
-                     int((r["x1"] + PAD) * W), int((r["y1"] + PAD) * H)], fill=(0, 0, 0, 0))
+    boxes = [_grow(r, W, H) for r in editable]
+    for b in boxes:
+        d.rectangle(b, fill=(0, 0, 0, 0))
     pb, mb = io.BytesIO(), io.BytesIO()
     src.save(pb, "PNG"); mask.save(mb, "PNG")
     prompt = ("Remove all overlaid text, captions, logos and graphic elements inside the masked (transparent) area "
@@ -79,9 +88,9 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, pre
     edited = edited.resize((W, H), Image.LANCZOS)
     paste_mask = Image.new("L", (W, H), 0)
     pd = ImageDraw.Draw(paste_mask)
-    for r in editable:
-        pd.rectangle([int((r["x0"] - PAD) * W), int((r["y0"] - PAD) * H),
-                      int((r["x1"] + PAD) * W), int((r["y1"] + PAD) * H)], fill=255)
+    for b in boxes:
+        pd.rectangle(b, fill=255)
+    paste_mask = paste_mask.filter(ImageFilter.GaussianBlur(H * 0.02))  # 경계선이 보이지 않게 부드럽게
     result = im.convert("RGB").copy()
     result.paste(edited, (0, 0), paste_mask)
     log(f"AI로 글자 영역 {len(editable)}곳 지움 (나머지는 원본 유지)")
