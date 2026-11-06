@@ -66,30 +66,27 @@ def build_caption(copy: dict, cfg: dict) -> str:
     return f"{body}\n\n{tag_line}"
 
 
-# ── /approve ─────────────────────────────────────────
-def do_approve(cfg, gh: GitHub, issue: dict, cmd: dict):
-    cands = load_candidates(issue["body"])
-    if not 1 <= cmd["n"] <= len(cands):
-        gh.comment(issue["number"], f"⚠️ 1~{len(cands)} 사이 번호로 입력해 주세요.")
-        return
-    cand = cands[cmd["n"] - 1]
+# ── 초안 만들기 (자동/반자동 공통) ───────────────────
+def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mode: str, tag: str) -> dict:
     tz = cfg["publish"]["timezone"]
-    out = POSTS_DIR / f"{datetime.now(ZoneInfo(tz)):%Y%m%d}-issue{issue['number']}-{cmd['n']}"
+    out = POSTS_DIR / f"{datetime.now(ZoneInfo(tz)):%Y%m%d}-issue{number}-{tag}"
     out.mkdir(parents=True, exist_ok=True)
 
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
-    copy = ai.build_cardnews(cand, cmd["my_take"], cfg["ai"]["body_slides"], cfg["brand"])
+    copy = ai.build_cardnews(cand, my_take, cfg["ai"]["body_slides"], cfg["brand"])
 
     cover = out / "cover.jpg"
     ai_image = True
-    if cmd["image_mode"] == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
+    if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
         try:
-            r = requests.get(cand["media_url"], timeout=60)
+            r = requests.get(cand["media_url"], timeout=60, headers={"User-Agent": "Mozilla/5.0"})
             r.raise_for_status()
+            if not r.headers.get("content-type", "").startswith("image/"):
+                raise ValueError("이미지 주소가 아닙니다")
             cover.write_bytes(r.content)
             ai_image = False
         except Exception as e:
-            gh.comment(issue["number"], f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
+            gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
     if ai_image:
         cover.write_bytes(ai.generate_image(copy.get("image_prompt", cand.get("caption", "")[:300]),
                                             cfg["ai"]["image_size"], cfg["ai"]["image_quality"]))
@@ -98,20 +95,36 @@ def do_approve(cfg, gh: GitHub, issue: dict, cmd: dict):
     slides = render_slides(ctx, out)
     caption = build_caption(copy, cfg)
 
-    urls = host_images(slides, cfg["publish"]["image_host"], f"draft: issue #{issue['number']} candidate {cmd['n']}")
-    draft = {"issue": issue["number"], "candidate": cmd["n"], "dir": str(out.relative_to(ROOT)),
+    urls = host_images(slides, cfg["publish"]["image_host"], f"draft: issue #{number} ({tag})")
+    draft = {"issue": number, "candidate": tag, "dir": str(out.relative_to(ROOT)),
              "image_urls": urls, "caption": caption, "copy": copy, "source": cand.get("permalink")}
     write_json(out / "draft.json", draft)
-    write_json(STATE_DIR / "drafts" / f"{issue['number']}.json", draft)
-    git_commit_push(f"draft: issue #{issue['number']}", [str(out.relative_to(ROOT)), "state/drafts"])
+    (out / "caption.txt").write_text(caption, encoding="utf-8")
+    write_json(STATE_DIR / "drafts" / f"{number}.json", draft)
+    git_commit_push(f"draft: issue #{number}", [str(out.relative_to(ROOT)), "state/drafts"])
+    return draft
 
+
+def preview_comment(gh: GitHub, number: int, draft: dict, footer: str):
+    gh.ensure_label("draft-ready", "fbca04", "미리보기 완료")
+    gh.add_labels(number, ["draft-ready"])
+    urls = draft["image_urls"]
+    imgs = "\n".join(f'<a href="{u}"><img src="{u}" width="240"></a>' for u in urls)
+    gh.comment(number,
+               f"🖼️ **미리보기** ({len(urls)}장)\n\n{imgs}\n\n**캡션** (복사해서 쓰세요)\n```\n{draft['caption']}\n```\n{footer}")
+
+
+# ── /approve ─────────────────────────────────────────
+def do_approve(cfg, gh: GitHub, issue: dict, cmd: dict):
+    cands = load_candidates(issue["body"])
+    if not 1 <= cmd["n"] <= len(cands):
+        gh.comment(issue["number"], f"⚠️ 1~{len(cands)} 사이 번호로 입력해 주세요.")
+        return
+    cand = cands[cmd["n"] - 1]
+    draft = make_draft(cfg, gh, issue["number"], cand, cmd["my_take"], cmd["image_mode"], str(cmd["n"]))
     if cfg["publish"]["require_preview"]:
-        gh.ensure_label("draft-ready", "fbca04", "미리보기 완료, /publish 대기")
-        gh.add_labels(issue["number"], ["draft-ready"])
-        imgs = "\n".join(f'<img src="{u}" width="240">' for u in urls)
-        gh.comment(issue["number"],
-                   f"🖼️ **미리보기** ({len(urls)}장)\n\n{imgs}\n\n**캡션**\n```\n{caption}\n```\n"
-                   "괜찮으면 `/publish`, 생각을 고치려면 `/approve 번호` 를 다시 입력하세요.")
+        preview_comment(gh, issue["number"], draft,
+                        "괜찮으면 `/publish`, 생각을 고치려면 `/approve 번호` 를 다시 입력하세요.")
     else:
         do_publish(cfg, gh, issue, {"force": False})
 

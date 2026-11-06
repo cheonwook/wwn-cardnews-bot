@@ -18,7 +18,11 @@ jobs:
     if: >-
       github.event.comment.user.login == github.repository_owner &&
       startsWith(github.event.comment.body, '/') &&
-      contains(github.event.issue.labels.*.name, 'topic-scout')
+      (
+        contains(github.event.issue.labels.*.name, 'topic-scout') ||
+        (contains(github.event.issue.body, '### 원문 내용') &&
+         (startsWith(github.event.comment.body, '/publish') || startsWith(github.event.comment.body, '/skip')))
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

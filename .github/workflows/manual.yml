@@ -1,0 +1,52 @@
+name: Manual Card (반자동)
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: repo-state
+  cancel-in-progress: false
+
+jobs:
+  make:
+    # 리포 주인이 '카드뉴스 직접 만들기' 양식으로 연 Issue, 또는 그 Issue 의 /redo 댓글
+    if: >-
+      contains(github.event.issue.body, '### 원문 내용') &&
+      (
+        (github.event_name == 'issues' && github.event.issue.user.login == github.repository_owner) ||
+        (github.event_name == 'issue_comment' && github.event.comment.user.login == github.repository_owner &&
+         startsWith(github.event.comment.body, '/redo'))
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Install Chromium (카드 렌더링용)
+        run: python -m playwright install --with-deps chromium
+      - id: make
+        run: python -m bot.manual
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+      - name: 카드 이미지 압축 파일
+        if: steps.make.outputs.dir != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: cardnews
+          path: |
+            ${{ steps.make.outputs.dir }}/slide_*.jpg
+            ${{ steps.make.outputs.dir }}/caption.txt
+          retention-days: 14
