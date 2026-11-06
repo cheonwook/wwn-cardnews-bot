@@ -44,7 +44,7 @@ def build_context(copy: dict, cand: dict, brand: dict, image_url: str, tz: str, 
     accent = brand.get("accent") or cat_color
     logo = TEMPLATES_DIR / "logo.png"
     slides = [{"title": s.get("title", ""), "title_html": _emph(s.get("title", "")),
-               "body_html": _mark(s.get("body", ""), s.get("highlight", ""))}
+               "body_html": _mark(s.get("body", ""), s.get("highlight", "")), "bg": s.get("bg")}
               for s in copy.get("slides", [])]
     my_take = (copy.get("my_take") or "").strip()
     show_take = bool(my_take) and bool(brand.get("editor_slide", False))

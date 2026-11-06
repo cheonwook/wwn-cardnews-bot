@@ -87,7 +87,8 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
     max_slides = int(cfg["ai"].get("max_body_slides", cfg["ai"].get("body_slides", 3)))
     photo_mode = cand.get("format") == "photo"
-    given_photos = [u for u in (cand.get("photo_urls") or []) if u.startswith("http")][:max_slides]
+    all_photos = [u for u in (cand.get("photo_urls") or []) if u.startswith("http")]
+    given_photos = all_photos[:max_slides]
     copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"], photo_mode, len(given_photos))
     copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:max_slides]
     if not photo_mode and not copy["slides"]:
@@ -110,6 +111,21 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
                 path.write_bytes(ai.generate_image(p, cfg["ai"]["image_size"], cfg["ai"]["image_quality"], cover=False))
                 photo_uris.append(path.as_uri())
 
+    # 텍스트 카드: 원문 사진을 받았으면 각 카드 배경으로 (원문 흐름에 맞게 고르게 골라 씀)
+    used_bg = 0
+    if not photo_mode and all_photos:
+        k = len(copy["slides"])
+        n = len(all_photos)
+        picks = [all_photos[round(i * (n - 1) / (k - 1))] if k > 1 else all_photos[0] for i in range(k)]
+        for i, (s, u) in enumerate(zip(copy["slides"], picks), 1):
+            try:
+                path = _download(u, out / f"photo_{i}.jpg")
+                path.write_bytes(remove_overlay_text(ai, path.read_bytes(), cfg["ai"]["image_quality"], prefer="inpaint"))
+                s["bg"] = path.as_uri()
+                used_bg += 1
+            except Exception as e:
+                gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 표지 사진으로 대신합니다. ({e})")
+
     cover = out / "cover.jpg"
     ai_image = True
     if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
@@ -126,7 +142,7 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     ctx = build_context(copy, cand, cfg["brand"], cover.as_uri(), tz, ai_image, photo_uris)
     slides = render_slides(ctx, out)
     caption = build_caption(copy, cfg)
-    used_original = (not ai_image) or (photo_mode and bool(given_photos) and len(photo_uris) > 0)
+    used_original = (not ai_image) or (photo_mode and bool(given_photos) and len(photo_uris) > 0) or used_bg > 0
     if used_original and "출처:" in caption:
         caption = caption.replace("출처:", "출처·사진:", 1)  # 원문 사진 사용 시 사진 출처도 명시
 
