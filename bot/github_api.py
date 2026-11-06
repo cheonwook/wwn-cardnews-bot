@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import subprocess
+import time
 
 import requests
 
@@ -64,8 +65,16 @@ def git_commit_push(message: str, paths: list[str]) -> None:
     if run("git", "diff", "--cached", "--quiet", check=False).returncode == 0:
         return
     run("git", "commit", "-m", message)
-    for _ in range(4):
+    for _ in range(5):
         if run("git", "push", check=False).returncode == 0:
             return
-        run("git", "pull", "--rebase", "-X", "theirs", check=False)
-    raise RuntimeError("git push 실패")
+        # 다른 커밋이 먼저 올라간 경우: 최신 상태 위에 내 파일만 다시 커밋
+        run("git", "rebase", "--abort", check=False)
+        run("git", "fetch", "origin", check=False)
+        if run("git", "rebase", "-X", "theirs", "@{u}", check=False).returncode != 0:
+            run("git", "rebase", "--abort", check=False)
+            run("git", "reset", "--mixed", "@{u}", check=False)
+            run("git", "add", "-A", *paths, check=False)
+            run("git", "commit", "-m", message, check=False)
+        time.sleep(3)
+    raise RuntimeError("git push 실패 (리포에 동시에 다른 변경이 있었어요. /redo 로 다시 시도하세요)")
