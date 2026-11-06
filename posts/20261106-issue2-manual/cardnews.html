@@ -57,8 +57,11 @@
 
   /* ── 표지 ──────────────────────────── */
   .cover .photo { height: 1350px; }
-  .cover .photo.short::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 86%, rgba(5,5,5,.75) 95%, var(--black) 100%) !important; }
-  .cover .photo::after { background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 46%, rgba(5,5,5,.78) 66%, rgba(5,5,5,.96) 82%, var(--black) 100%); }
+  .cover .photo::after { display: none; }
+  .cover .photo.short { -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%); mask-image: linear-gradient(180deg, #000 82%, transparent 100%); }
+  .cover .fillbg { position: absolute; inset: -80px; background: center/cover no-repeat; filter: blur(30px) brightness(.75) saturate(.9); transform: scale(1.12); }
+  
+  .cover .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,5,5,.40) 0%, rgba(5,5,5,0) 13%, rgba(5,5,5,0) 30%, rgba(5,5,5,0.7275) 65.0%, rgba(5,5,5,0.97) 100%); }
   .cover .bottom { position: absolute; left: 44px; right: 44px; bottom: 54px; max-height: 650px; z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 22px; }
   .cover .badge { width: 84px; height: 84px; }
   .headline { font-family: 'HeadEn', 'HeadKo'; font-weight: 400; font-size: 104px; line-height: 1.0; text-align: center; letter-spacing: -.045em; word-spacing: -.04em; text-wrap: balance;
@@ -118,14 +121,16 @@
 
 
 <section class="slide cover" id="s1">
+  
   <div class="photo short" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261106-issue2-manual/cover.jpg'); height: 880px"></div>
+  <div class="shade"></div>
   <div class="top">
   <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
   <div class="handle-tag">@wwn.daily</div>
 </div>
   <div class="bottom">
     <div class="divider"><div class="badge">WWN</div></div>
-    <h1 class="headline fit">서로 다른 눈 색의 <em>소년</em>과 닮은 <em>고양이</em>의 만남</h1>
+    <h1 class="headline fit">서로 다른 눈 색의 <em>소년</em>과 <em>고양이</em>, 가족이 되다</h1>
     <div class="swipe">넘겨서 자세히 보기 ›</div>
   </div>
 </section>
