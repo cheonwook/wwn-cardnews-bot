@@ -116,3 +116,53 @@ class OpenAIClient:
             else:
                 raise
         return base64.b64decode(data["data"][0]["b64_json"])
+
+    # ── 4) 이미지 속 글자 영역 찾기 (비전) ─────────────────
+    def find_text_regions(self, jpeg: bytes) -> list[dict]:
+        """이미지에 '덧씌워진' 글자(제목·자막·워터마크 계정명 등) 영역을 0~1 비율 좌표로."""
+        b64 = base64.b64encode(jpeg).decode()
+        data = self._post("/chat/completions", {
+            "model": self.text_model,
+            "response_format": {"type": "json_object"},
+            "messages": [
+                {"role": "system", "content": "You locate overlaid graphic text on photos. Answer JSON only."},
+                {"role": "user", "content": [
+                    {"type": "text", "text":
+                     "Find text that was ADDED on top of this photo (headlines, captions, account names, logos, 'swipe' hints, "
+                     "brand marks). Ignore text that is naturally part of the scene (signs, clothing, packaging). "
+                     'Return {"regions":[{"x0":0-1,"y0":0-1,"x1":0-1,"y1":0-1,"over_face":true|false}]} '
+                     "as fractions of width/height, generous enough to fully cover the text and its graphic band. "
+                     "over_face=true if the box overlaps any human or animal face. Empty list if none."},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
+                ]},
+            ],
+        })
+        out = json.loads(data["choices"][0]["message"]["content"]).get("regions", [])
+        clean = []
+        for r in out:
+            try:
+                x0, y0, x1, y1 = (max(0.0, min(1.0, float(r[k]))) for k in ("x0", "y0", "x1", "y1"))
+            except (KeyError, TypeError, ValueError):
+                continue
+            if x1 > x0 and y1 > y0:
+                clean.append({"x0": x0, "y0": y0, "x1": x1, "y1": y1, "over_face": bool(r.get("over_face"))})
+        return clean
+
+    # ── 5) 마스크 영역만 다시 그리기 (글자 지우기) ──────────
+    def edit_image(self, png: bytes, mask_png: bytes, prompt: str, quality: str) -> bytes:
+        headers = {"Authorization": f"Bearer {self.key}"}
+        last = None
+        for attempt in range(3):
+            r = requests.post(f"{API}/images/edits", headers=headers, timeout=300,
+                              files={"image": ("image.png", png, "image/png"),
+                                     "mask": ("mask.png", mask_png, "image/png")},
+                              data={"model": self.image_model, "prompt": prompt, "size": "auto",
+                                    "quality": quality, "output_format": "jpeg", "n": "1"})
+            if r.status_code == 200:
+                return base64.b64decode(r.json()["data"][0]["b64_json"])
+            last = r
+            if r.status_code in (429, 500, 502, 503, 504):
+                time.sleep(5 * (attempt + 1))
+                continue
+            break
+        raise RuntimeError(f"OpenAI /images/edits 실패 {last.status_code}: {last.text[:500]}")

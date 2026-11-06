@@ -1,0 +1,75 @@
+"""원문 이미지에 박힌 글자(제목·로고 등) 없애기.
+
+1) 비전으로 덧씌운 글자 영역 찾기
+2) 글자가 위/아래 띠에만 있으면 → 그 띠를 잘라냄 (사진 원본 그대로, 가장 안전)
+3) 사진 중간에 걸치면 → 그 영역만 OpenAI 이미지 편집으로 지움 (얼굴 위 글자는 지우지 않음)
+"""
+from __future__ import annotations
+
+import io
+
+from PIL import Image, ImageDraw
+
+MIN_KEEP = 0.45   # 잘라낸 뒤 원본 높이의 최소 비율
+PAD = 0.015
+
+
+def _jpeg(im: Image.Image, max_side: int | None = None) -> bytes:
+    im = im.convert("RGB")
+    if max_side and max(im.size) > max_side:
+        im = im.copy(); im.thumbnail((max_side, max_side))
+    b = io.BytesIO(); im.save(b, "JPEG", quality=92); return b.getvalue()
+
+
+def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print) -> bytes:
+    im = Image.open(io.BytesIO(data)); im.load()
+    W, H = im.size
+    try:
+        regions = ai.find_text_regions(_jpeg(im, 1024))
+    except Exception as e:  # 분석 실패 시 원본 사용
+        log(f"글자 영역 분석 실패, 원본 사용: {e}")
+        return data
+    if not regions:
+        return data
+
+    top = min(r["y0"] for r in regions)
+    bottom = max(r["y1"] for r in regions)
+
+    # 2) 위/아래 띠 잘라내기: 글자 띠 밖의 가장 큰 깨끗한 구간
+    bands = []  # (start, end) 깨끗한 세로 구간
+    occupied = sorted((max(0, r["y0"] - PAD), min(1, r["y1"] + PAD)) for r in regions)
+    cur = 0.0
+    for a, b in occupied:
+        if a > cur:
+            bands.append((cur, a))
+        cur = max(cur, b)
+    if cur < 1:
+        bands.append((cur, 1.0))
+    best = max(bands, key=lambda t: t[1] - t[0], default=(0, 0))
+    if best[1] - best[0] >= MIN_KEEP:
+        log(f"글자 띠 잘라냄: 세로 {best[0]:.2f}~{best[1]:.2f} 사용")
+        return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H))))
+
+    # 3) AI 편집: 얼굴 위가 아닌 글자 영역만 지움
+    editable = [r for r in regions if not r["over_face"]]
+    if not editable:
+        log("글자가 얼굴과 겹쳐 지우지 않고 원본 사용")
+        return data
+    src = im.convert("RGBA")
+    mask = Image.new("RGBA", src.size, (0, 0, 0, 255))
+    d = ImageDraw.Draw(mask)
+    for r in editable:
+        d.rectangle([int((r["x0"] - PAD) * W), int((r["y0"] - PAD) * H),
+                     int((r["x1"] + PAD) * W), int((r["y1"] + PAD) * H)], fill=(0, 0, 0, 0))
+    pb, mb = io.BytesIO(), io.BytesIO()
+    src.save(pb, "PNG"); mask.save(mb, "PNG")
+    prompt = ("Remove all overlaid text, captions, logos and graphic elements inside the masked (transparent) area "
+              "and reconstruct the photo there so it blends naturally with its surroundings. "
+              "Keep everything outside the mask exactly as it is. Do not add any text.")
+    try:
+        out = ai.edit_image(pb.getvalue(), mb.getvalue(), prompt, quality)
+        log(f"AI로 글자 영역 {len(editable)}곳 지움")
+        return out
+    except Exception as e:
+        log(f"글자 지우기 실패, 원본 사용: {e}")
+        return data

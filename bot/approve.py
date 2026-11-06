@@ -13,6 +13,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 from .ai import OpenAIClient
+from .cleanimg import remove_overlay_text
 from .config import POSTS_DIR, ROOT, STATE_DIR, env, load_config, read_json, write_json
 from .github_api import GitHub, git_commit_push
 from .hosting import host_images
@@ -97,7 +98,9 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     if photo_mode:
         for i, u in enumerate(given_photos, 1):
             try:
-                photo_uris.append(_download(u, out / f"photo_{i}.jpg").as_uri())
+                path = _download(u, out / f"photo_{i}.jpg")
+                path.write_bytes(remove_overlay_text(ai, path.read_bytes(), cfg["ai"]["image_quality"]))
+                photo_uris.append(path.as_uri())
             except Exception as e:
                 gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 건너뜁니다. ({e})")
         if not photo_uris:
@@ -112,6 +115,7 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
         try:
             _download(cand["media_url"], cover)
+            cover.write_bytes(remove_overlay_text(ai, cover.read_bytes(), cfg["ai"]["image_quality"]))
             ai_image = False
         except Exception as e:
             gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
