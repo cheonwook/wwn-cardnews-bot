@@ -107,6 +107,11 @@ def issue_body(cands: list[dict], owner: str, errors: list[str]) -> str:
 
 
 def main():
+    import os
+    if not (os.environ.get("IG_USER_ID") and os.environ.get("IG_ACCESS_TOKEN")):
+        # 인스타 연결 전: 실패 알림 대신 조용히 건너뜀 (반자동 모드는 그대로 사용 가능)
+        print("[건너뜀] IG_USER_ID / IG_ACCESS_TOKEN Secret 이 아직 없어 Topic Scout 를 실행하지 않습니다.")
+        return
     cfg = load_config()
     ig = InstagramClient(env("IG_USER_ID"), env("IG_ACCESS_TOKEN"), cfg["graph_api"]["version"])
     gh = GitHub()
