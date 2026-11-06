@@ -1,0 +1,45 @@
+{
+  "issue": 3,
+  "candidate": "manual",
+  "dir": "posts/20261107-issue3-manual",
+  "image_urls": [
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue3-manual/slide_01.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue3-manual/slide_02.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue3-manual/slide_03.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue3-manual/slide_04.jpg"
+  ],
+  "caption": "‘록키’를 쓰기 전, 스탤론에게도 거절의 시간이 있었어요. 🥊\n실베스터 스탤론은 출생 당시 얼굴 일부가 마비됐고, 어린 시절 따돌림을 겪었어요.\n배우로 자리 잡지 못하던 그는 복싱 경기에서 영감을 받아 3일 반 만에 각본을 썼어요.\n1976년 개봉한 ‘록키’는 전 세계 약 2억 2,500만 달러의 흥행 수익을 거뒀어요.\n아카데미 작품·감독·편집상까지 3관왕에 올랐죠.\n\n최악의 조건 속에서도 준비와 확신이 있다면, 기회를 잡고 꿈같은 미래를 펼칠 수 있겠네요. ✨\n출처·사진: @explainingnews\n\n#실베스터스탤론 #록키 #영화이야기 #영화각본 #아카데미 #도전 #끈기 #SylvesterStallone #Rocky #영화뉴스 #카드뉴스 #해외이슈 #오늘의뉴스",
+  "copy": {
+    "headline": "[[스탤론]]이 쓴 [[록키]], 아카데미 [[3관왕]]에 오르다",
+    "subheadline": "거절의 시간을 지나 스크린에 담은 도전",
+    "slides": [
+      {
+        "title": "거절을 견딘 [[스탤론]]",
+        "body": "실베스터 스탤론은 출생 당시 합병증으로 얼굴 일부가 마비됐어요.\n어린 시절 따돌림을 겪었고, 배우로 자리 잡기까지 거절을 거듭했어요.",
+        "highlight": "배우로 자리 잡기까지 거절을 거듭했어요"
+      },
+      {
+        "title": "[[록키]]로 이룬 반전",
+        "body": "복싱 경기에서 영감을 받아 3일 반 만에 ‘록키’ 각본을 썼어요.\n1976년 개봉한 영화는 아카데미 작품·감독·편집상 3관왕에 올랐어요.",
+        "highlight": "아카데미 작품·감독·편집상 3관왕"
+      }
+    ],
+    "my_take": "최악의 조건 속에서도 준비와 확신이 있다면, 기회를 잡고 꿈같은 미래를 펼칠 수 있겠네요. ✨",
+    "caption": "‘록키’를 쓰기 전, 스탤론에게도 거절의 시간이 있었어요. 🥊\n실베스터 스탤론은 출생 당시 얼굴 일부가 마비됐고, 어린 시절 따돌림을 겪었어요.\n배우로 자리 잡지 못하던 그는 복싱 경기에서 영감을 받아 3일 반 만에 각본을 썼어요.\n1976년 개봉한 ‘록키’는 전 세계 약 2억 2,500만 달러의 흥행 수익을 거뒀어요.\n아카데미 작품·감독·편집상까지 3관왕에 올랐죠.\n\n최악의 조건 속에서도 준비와 확신이 있다면, 기회를 잡고 꿈같은 미래를 펼칠 수 있겠네요. ✨\n출처: @explainingnews",
+    "hashtags": [
+      "실베스터스탤론",
+      "록키",
+      "영화이야기",
+      "영화각본",
+      "아카데미",
+      "도전",
+      "끈기",
+      "SylvesterStallone",
+      "Rocky",
+      "영화뉴스"
+    ],
+    "image_prompt": "Photorealistic editorial still life in a modest, dimly lit room: a vintage typewriter with blank paper on a worn wooden desk, unbranded boxing gloves resting on a nearby chair, soft morning light entering through a window. A restrained, hopeful mood symbolizing perseverance and screenwriting. Vertical composition with negative space at the top. No people, faces, fictional characters, mascots, logos, flags, emblems, or visible text.",
+    "photo_prompts": []
+  },
+  "source": "https://www.instagram.com/p/DfQLVEBkzxL/"
+}
