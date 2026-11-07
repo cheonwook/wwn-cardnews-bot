@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import base64
+from concurrent.futures import ThreadPoolExecutor
 import json
 import re
 from datetime import datetime
@@ -13,7 +14,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 from .ai import OpenAIClient
-from .cleanimg import remove_overlay_text
+from .cleanimg import clean_and_read
 from .config import POSTS_DIR, ROOT, STATE_DIR, env, load_config, read_json, write_json
 from .github_api import GitHub, git_commit_push
 from .hosting import host_images
@@ -85,59 +86,73 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
         old.unlink()
 
     ai = OpenAIClient(env("OPENAI_API_KEY"), cfg["ai"]["text_model"], cfg["ai"]["image_model"])
-    max_slides = int(cfg["ai"].get("max_body_slides", cfg["ai"].get("body_slides", 3)))
+    q = cfg["ai"]["image_quality"]
+    max_slides = int(cfg["ai"].get("max_body_slides", 3))          # 원문 사진 정보가 없을 때
+    max_long = int(cfg["ai"].get("max_body_slides_long", 8))       # 원문 장수를 따라갈 때 상한
     photo_mode = cand.get("format") == "photo"
-    all_photos = [u for u in (cand.get("photo_urls") or []) if u.startswith("http")]
-    given_photos = all_photos[:max_slides]
-    copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"], photo_mode, len(given_photos))
-    copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:max_slides]
+    all_photos = [u for u in (cand.get("photo_urls") or []) if u.startswith("http")][:max_long]
+
+    # 1) 원문 사진 먼저: 내려받기 → 박힌 글자 읽기 → 글자 지우기 (병렬)
+    originals: list[tuple[str, str]] = []   # (파일 uri, 원문 글자)
+    if all_photos:
+        prefer = "crop" if photo_mode else "inpaint"
+
+        def work(i_u):
+            i, u = i_u
+            path = _download(u, out / f"photo_{i}.jpg")
+            cleaned, text = clean_and_read(ai, path.read_bytes(), q, prefer=prefer)
+            path.write_bytes(cleaned)
+            return path.as_uri(), text
+
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            futures = [ex.submit(work, (i, u)) for i, u in enumerate(all_photos, 1)]
+            for i, f in enumerate(futures, 1):
+                try:
+                    originals.append(f.result())
+                except Exception as e:
+                    gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 건너뜁니다. ({e})")
+
+    cover = out / "cover.jpg"
+    ai_image = True
+    cover_text = ""
+    if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
+        try:
+            _download(cand["media_url"], cover)
+            cleaned, cover_text = clean_and_read(ai, cover.read_bytes(), q, prefer="inpaint")
+            cover.write_bytes(cleaned)
+            ai_image = False
+        except Exception as e:
+            gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
+
+    # 2) 원고: 텍스트 카드 + 원문 사진이 있으면 원문 장별로 1:1
+    story = (not photo_mode) and bool(originals)
+    copy = ai.build_cardnews(cand, my_take, max_slides, cfg["brand"], photo_mode, len(originals),
+                             slide_texts=[t for _, t in originals] if story else None, cover_text=cover_text)
+    limit = len(originals) if story else max_slides
+    copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:limit]
     if not photo_mode and not copy["slides"]:
         raise RuntimeError("AI가 본문 슬라이드를 만들지 못했습니다. /redo 로 다시 시도하세요.")
 
-    # 사진 모드: 본문 사진 준비 (사용자가 준 주소 → 실패/없으면 AI 생성)
+    # 3) 이미지 배치
     photo_uris = []
+    used_bg = 0
     if photo_mode:
-        for i, u in enumerate(given_photos, 1):
-            try:
-                path = _download(u, out / f"photo_{i}.jpg")
-                path.write_bytes(remove_overlay_text(ai, path.read_bytes(), cfg["ai"]["image_quality"]))
-                photo_uris.append(path.as_uri())
-            except Exception as e:
-                gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 건너뜁니다. ({e})")
+        photo_uris = [u for u, _ in originals][:max_long]
         if not photo_uris:
             prompts = [p for p in (copy.get("photo_prompts") or []) if p][:max_slides] or [copy.get("image_prompt", "")]
             for i, p in enumerate(prompts, 1):
                 path = out / f"photo_{i}.jpg"
-                path.write_bytes(ai.generate_image(p, cfg["ai"]["image_size"], cfg["ai"]["image_quality"], cover=False))
+                path.write_bytes(ai.generate_image(p, cfg["ai"]["image_size"], q, cover=False))
                 photo_uris.append(path.as_uri())
+    elif originals:
+        for s, (uri, _) in zip(copy["slides"], originals):  # i번째 원문 사진 → i번째 카드
+            s["bg"] = uri
+            used_bg += 1
 
-    # 텍스트 카드: 원문 사진을 받았으면 각 카드 배경으로 (원문 흐름에 맞게 고르게 골라 씀)
-    used_bg = 0
-    if not photo_mode and all_photos:
-        k = len(copy["slides"])
-        n = len(all_photos)
-        picks = [all_photos[round(i * (n - 1) / (k - 1))] if k > 1 else all_photos[0] for i in range(k)]
-        for i, (s, u) in enumerate(zip(copy["slides"], picks), 1):
-            try:
-                path = _download(u, out / f"photo_{i}.jpg")
-                path.write_bytes(remove_overlay_text(ai, path.read_bytes(), cfg["ai"]["image_quality"], prefer="inpaint"))
-                s["bg"] = path.as_uri()
-                used_bg += 1
-            except Exception as e:
-                gh.comment(number, f"본문 사진 {i}번을 가져오지 못해 표지 사진으로 대신합니다. ({e})")
-
-    cover = out / "cover.jpg"
-    ai_image = True
-    if image_mode == "original" and cand.get("media_url") and cand.get("media_type") != "VIDEO":
-        try:
-            _download(cand["media_url"], cover)
-            cover.write_bytes(remove_overlay_text(ai, cover.read_bytes(), cfg["ai"]["image_quality"], prefer="inpaint"))
-            ai_image = False
-        except Exception as e:
-            gh.comment(number, f"원본 이미지를 가져오지 못해 AI 이미지로 대체합니다. ({e})")
     if ai_image:
         cover.write_bytes(ai.generate_image(copy.get("image_prompt", cand.get("caption", "")[:300]),
-                                            cfg["ai"]["image_size"], cfg["ai"]["image_quality"]))
+                                            cfg["ai"]["image_size"], q))
+    given_photos = all_photos
 
     ctx = build_context(copy, cand, cfg["brand"], cover.as_uri(), tz, ai_image, photo_uris)
     slides = render_slides(ctx, out)

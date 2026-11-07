@@ -30,17 +30,17 @@ def _grow(r: dict, W: int, H: int) -> list[int]:
             int(min(1, r["x1"] + PAD) * W), int(min(1, r["y1"] + ext) * H)]
 
 
-def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, prefer: str = "crop") -> bytes:
+def clean_and_read(ai, data: bytes, quality: str = "medium", log=print, prefer: str = "crop") -> tuple[bytes, str]:
     """prefer='crop': 글자 띠를 잘라냄(본문 사진용) / 'inpaint': 글자만 지우고 사진 전체를 살림(표지용)."""
     im = Image.open(io.BytesIO(data)); im.load()
     W, H = im.size
     try:
-        regions = ai.find_text_regions(_jpeg(im, 1024))
+        regions, text = ai.read_overlay(_jpeg(im, 1024))
     except Exception as e:  # 분석 실패 시 원본 사용
         log(f"글자 영역 분석 실패, 원본 사용: {e}")
-        return data
+        return data, ""
     if not regions:
-        return data
+        return data, text
 
     top = min(r["y0"] for r in regions)
     bottom = max(r["y1"] for r in regions)
@@ -58,13 +58,13 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, pre
     best = max(bands, key=lambda t: t[1] - t[0], default=(0, 0))
     if prefer == "crop" and best[1] - best[0] >= MIN_KEEP:
         log(f"글자 띠 잘라냄: 세로 {best[0]:.2f}~{best[1]:.2f} 사용")
-        return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H))))
+        return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H)))), text
 
     # 3) AI 편집: 얼굴 위가 아닌 글자 영역만 지움
     editable = [r for r in regions if not r["over_face"]]
     if not editable:
         log("글자가 얼굴과 겹쳐 지우지 않고 원본 사용")
-        return data
+        return data, text
     src = im.convert("RGBA")
     mask = Image.new("RGBA", src.size, (0, 0, 0, 255))
     d = ImageDraw.Draw(mask)
@@ -81,9 +81,9 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, pre
     except Exception as e:
         if best[1] - best[0] >= MIN_KEEP:
             log(f"글자 지우기 실패, 글자 띠를 잘라서 사용: {e}")
-            return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H))))
+            return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H)))), text
         log(f"글자 지우기 실패, 원본 사용: {e}")
-        return data
+        return data, text
     # 편집본에서 글자 영역만 원본에 붙여넣기 → 얼굴 등 나머지는 원본 화질 그대로
     edited = edited.resize((W, H), Image.LANCZOS)
     paste_mask = Image.new("L", (W, H), 0)
@@ -94,4 +94,8 @@ def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, pre
     result = im.convert("RGB").copy()
     result.paste(edited, (0, 0), paste_mask)
     log(f"AI로 글자 영역 {len(editable)}곳 지움 (나머지는 원본 유지)")
-    return _jpeg(result)
+    return _jpeg(result), text
+
+
+def remove_overlay_text(ai, data: bytes, quality: str = "medium", log=print, prefer: str = "crop") -> bytes:
+    return clean_and_read(ai, data, quality, log, prefer)[0]

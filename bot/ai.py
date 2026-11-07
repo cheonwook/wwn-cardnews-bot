@@ -52,15 +52,22 @@ class OpenAIClient:
 
     # ── 2) 승인 후: 카드뉴스 원고 ───────────────────────
     def build_cardnews(self, cand: dict, my_take: str, max_slides: int, brand: dict,
-                       photo_mode: bool = False, n_photos: int = 0) -> dict:
+                       photo_mode: bool = False, n_photos: int = 0,
+                       slide_texts: list[str] | None = None, cover_text: str = "") -> dict:
+        story = bool(slide_texts) and not photo_mode
         system = (
             "너는 한국어 인스타그램 카드뉴스 전문 에디터다.\n"
             "규칙:\n"
-            "1. 원문 캡션에 있는 사실만 사용한다. 추측·과장 금지. 숫자·이름·날짜는 원문 그대로.\n"
+            "1. 원문 캡션과 원문 이미지 속 글자에 있는 사실만 사용한다. 추측·과장 금지. 숫자·이름·날짜는 원문 그대로.\n"
             "2. 직역하지 말고 한국 독자가 맥락을 이해하도록 자연스럽게 번역·재구성한다(고유명사는 한글 표기 후 필요시 괄호 원어).\n"
-            "3. 슬라이드 한 장의 본문은 90자 이내, 짧은 문장 2~3개.\n"
-            "3-1. 끝까지 읽히는 게 최우선이다. 핵심만 남기고, 같은 내용을 나눠 장수를 늘리거나 반복하지 않는다. "
-            "원문이 짧으면 본문은 1장이면 충분하다.\n"
+            + ("3. [원문 장별 모드] 본문 슬라이드는 원문 본문 장과 1:1로 같은 순서·같은 장수로 만든다(i번째 원문 장 → i번째 슬라이드). "
+               "요약해서 줄이지 말고 원문의 이야기 흐름, 감정선, 인용구, 구체적인 장면·숫자를 살린다. "
+               "장당 본문 60~140자, 문장 2~4개. 원문 장에 글이 거의 없으면 그 장 사진 맥락에 맞는 앞뒤 이야기를 캡션 사실 범위 안에서 잇는다.\n"
+               if story else
+               "3. 슬라이드 한 장의 본문은 90자 이내, 짧은 문장 2~3개.\n"
+               "3-1. 끝까지 읽히는 게 최우선이다. 핵심만 남기고, 같은 내용을 나눠 장수를 늘리거나 반복하지 않는다. "
+               "원문이 짧으면 본문은 1장이면 충분하다.\n")
+            + 
             "4. '내 생각'은 사용자가 쓴 의견의 취지·감정·1인칭 시점을 그대로 유지하되, 말투는 친근한 해요체(~요, ~죠)로 다듬는다. "
             "어울리는 이모지를 1~2개 자연스러운 위치에 넣는다(문장 끝 위주, 남발 금지). 새로운 주장을 추가하지 않는다. 사용자가 비워두면 빈 문자열.\n"
             "4-1. 캡션 전체에도 이모지는 2~4개만, 첫 줄 후킹 문장과 내 생각 부분에 자연스럽게 쓴다. 비극적인 소식에는 🕊️🙏 같은 차분한 이모지만 쓴다.\n"
@@ -72,7 +79,11 @@ class OpenAIClient:
             f"원문 출처: {cand.get('source_account') or cand.get('source_type')} / {cand.get('permalink')}\n"
             f"카테고리: {cand.get('category')}\n"
             f"원문 캡션:\n\"\"\"\n{cand.get('caption', '')[:3500]}\n\"\"\"\n\n"
-            f"사용자의 생각(원문 그대로):\n\"\"\"\n{my_take.strip()}\n\"\"\"\n\n"
+            + (f"원문 표지 글자: {cover_text}\n" if cover_text else "")
+            + ("원문 본문 장별 글자(이 순서·장수대로 slides 를 만든다):\n"
+               + "\n".join(f"[{i}] {t or '(글자 없음)'}" for i, t in enumerate(slide_texts, 1)) + "\n\n"
+               if story else "")
+            + f"사용자의 생각(원문 그대로):\n\"\"\"\n{my_take.strip()}\n\"\"\"\n\n"
             + (
                 f"[사진 모드] 카드에는 표지 제목 외에 글을 넣지 않는다. slides 는 빈 배열 []. "
                 + (f"photo_prompts 는 빈 배열 [] (사진은 사용자가 준비함). " if n_photos else
@@ -80,7 +91,8 @@ class OpenAIClient:
                 + "카드에 글이 없으므로 caption 이 본문 역할을 한다: 첫 줄 후킹 문장, 빈 줄, 핵심 내용 5~8줄(짧은 문단, 해요체), "
                 "빈 줄, 내 생각 1~2문장, 빈 줄, '출처: @계정'.\n"
                 if photo_mode else
-                f"본문 슬라이드는 1~{max_slides}장 중 내용에 맞는 최소 장수.\n"
+                (f"본문 슬라이드는 정확히 {len(slide_texts)}장.\n" if story else
+                 f"본문 슬라이드는 1~{max_slides}장 중 내용에 맞는 최소 장수.\n")
             )
             + "다음 JSON 형식으로만 답하라:\n"
             "{\n"
@@ -119,7 +131,10 @@ class OpenAIClient:
 
     # ── 4) 이미지 속 글자 영역 찾기 (비전) ─────────────────
     def find_text_regions(self, jpeg: bytes) -> list[dict]:
-        """이미지에 '덧씌워진' 글자(제목·자막·워터마크 계정명 등) 영역을 0~1 비율 좌표로."""
+        return self.read_overlay(jpeg)[0]
+
+    def read_overlay(self, jpeg: bytes) -> tuple[list[dict], str]:
+        """이미지에 덧씌워진 글자(제목·자막·계정명 등)의 영역(0~1 비율)과 그 글자 내용."""
         b64 = base64.b64encode(jpeg).decode()
         data = self._post("/chat/completions", {
             "model": self.text_model,
@@ -130,14 +145,17 @@ class OpenAIClient:
                     {"type": "text", "text":
                      "Find text that was ADDED on top of this photo (headlines, captions, account names, logos, 'swipe' hints, "
                      "brand marks). Ignore text that is naturally part of the scene (signs, clothing, packaging). "
-                     'Return {"regions":[{"x0":0-1,"y0":0-1,"x1":0-1,"y1":0-1,"over_face":true|false}]} '
+                     'Return {"text":"all overlaid text verbatim, in reading order (exclude account names / swipe hints)",'
+                     '"regions":[{"x0":0-1,"y0":0-1,"x1":0-1,"y1":0-1,"over_face":true|false}]} '
                      "as fractions of width/height, generous enough to fully cover the text and its graphic band. "
                      "over_face=true if the box overlaps any human or animal face. Empty list if none."},
                     {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64}"}},
                 ]},
             ],
         })
-        out = json.loads(data["choices"][0]["message"]["content"]).get("regions", [])
+        parsed = json.loads(data["choices"][0]["message"]["content"])
+        out = parsed.get("regions", [])
+        text = str(parsed.get("text") or "").strip()
         clean = []
         for r in out:
             try:
@@ -146,7 +164,7 @@ class OpenAIClient:
                 continue
             if x1 > x0 and y1 > y0:
                 clean.append({"x0": x0, "y0": y0, "x1": x1, "y1": y1, "over_face": bool(r.get("over_face"))})
-        return clean
+        return clean, text
 
     # ── 5) 마스크 영역만 다시 그리기 (글자 지우기) ──────────
     def edit_image(self, png: bytes, mask_png: bytes, prompt: str, quality: str) -> bytes:

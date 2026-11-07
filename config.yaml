@@ -79,6 +79,7 @@ ai:
   image_size: "1088x1360"         # 4:5 세로형 (16의 배수). 실패 시 1024x1536 으로 재시도
   image_quality: "medium"         # low | medium | high
   max_body_slides: 3              # 본문 슬라이드 최대 수. 내용이 적으면 AI가 1~2장으로 줄임
+  max_body_slides_long: 8         # 원문 사진을 받은 텍스트 카드는 원문 장수만큼(최대 이 값). 표지+본문+팔로우 ≤ 10장(인스타 자동발행 한도)
 
 publish:
   require_preview: true           # true: /approve 후 미리보기 → /publish 해야 발행
