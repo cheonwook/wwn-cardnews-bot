@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import io
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageStat
 
 MIN_KEEP = 0.45   # 잘라낸 뒤 원본 높이의 최소 비율
 PAD = 0.03
@@ -20,6 +20,20 @@ def _jpeg(im: Image.Image, max_side: int | None = None) -> bytes:
     if max_side and max(im.size) > max_side:
         im = im.copy(); im.thumbnail((max_side, max_side))
     b = io.BytesIO(); im.save(b, "JPEG", quality=92); return b.getvalue()
+
+
+MAX_EDIT_TRIES = 3   # 글자 지우기 최대 시도 횟수
+BLACK_MEAN = 20      # 지운 자리의 평균 밝기(0~255)가 이보다 어두우면 AI가 검게 채운 것으로 봄
+
+
+def _filled_black(img: Image.Image, boxes: list[list[int]]) -> bool:
+    """AI가 지운 자리를 사진으로 복원하지 않고 새까맣게 채웠는지 검사."""
+    for x0, y0, x1, y1 in boxes:
+        if x1 <= x0 or y1 <= y0:
+            continue
+        if ImageStat.Stat(img.crop((x0, y0, x1, y1)).convert("L")).mean[0] < BLACK_MEAN:
+            return True
+    return False
 
 
 def _grow(r: dict, W: int, H: int) -> list[int]:
@@ -76,16 +90,28 @@ def clean_and_read(ai, data: bytes, quality: str = "medium", log=print, prefer: 
     prompt = ("Remove all overlaid text, captions, logos and graphic elements inside the masked (transparent) area "
               "and reconstruct the photo there so it blends naturally with its surroundings. "
               "Keep everything outside the mask exactly as it is. Do not add any text.")
-    try:
-        edited = Image.open(io.BytesIO(ai.edit_image(pb.getvalue(), mb.getvalue(), prompt, quality))).convert("RGB")
-    except Exception as e:
+    edited = None
+    for attempt in range(1, MAX_EDIT_TRIES + 1):  # AI가 글자 자리를 새까맣게 채우는 경우가 있어 다시 시도
+        try:
+            tried = Image.open(io.BytesIO(ai.edit_image(pb.getvalue(), mb.getvalue(), prompt, quality))).convert("RGB")
+        except Exception as e:
+            if best[1] - best[0] >= MIN_KEEP:
+                log(f"글자 지우기 실패, 글자 띠를 잘라서 사용: {e}")
+                return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H)))), text
+            log(f"글자 지우기 실패, 원본 사용: {e}")
+            return data, text
+        tried = tried.resize((W, H), Image.LANCZOS)
+        if not _filled_black(tried, boxes):
+            edited = tried
+            break
+        log(f"AI가 글자 자리를 검게 채워서 다시 시도 ({attempt}/{MAX_EDIT_TRIES})")
+    if edited is None:
         if best[1] - best[0] >= MIN_KEEP:
-            log(f"글자 지우기 실패, 글자 띠를 잘라서 사용: {e}")
+            log("글자 자리가 계속 검게 채워져 글자 띠를 잘라서 사용")
             return _jpeg(im.crop((0, int(best[0] * H), W, int(best[1] * H)))), text
-        log(f"글자 지우기 실패, 원본 사용: {e}")
+        log("글자 자리가 계속 검게 채워져 원본 사용")
         return data, text
     # 편집본에서 글자 영역만 원본에 붙여넣기 → 얼굴 등 나머지는 원본 화질 그대로
-    edited = edited.resize((W, H), Image.LANCZOS)
     paste_mask = Image.new("L", (W, H), 0)
     pd = ImageDraw.Draw(paste_mask)
     for b in boxes:
