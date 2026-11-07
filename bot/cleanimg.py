@@ -11,7 +11,7 @@ import io
 from PIL import Image, ImageDraw, ImageFilter
 
 MIN_KEEP = 0.45   # 잘라낸 뒤 원본 높이의 최소 비율
-PAD = 0.015
+PAD = 0.03
 BLEND = 0.10   # 글자 띠 위아래로 더 넓혀서 지움 (원문 디자인의 어두운 그라데이션까지 포함)
 
 
