@@ -130,6 +130,8 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
                              slide_texts=[t for _, t in originals] if story else None, cover_text=cover_text)
     limit = len(originals) if story else max_slides
     copy["slides"] = [s for s in copy.get("slides", []) if s.get("body") or s.get("title")][:limit]
+    if cand.get("no_body"):
+        copy["slides"] = []  # 본문 없이 표지 + 마무리만
     if not photo_mode and not copy["slides"]:
         raise RuntimeError("AI가 본문 슬라이드를 만들지 못했습니다. /redo 로 다시 시도하세요.")
 
@@ -138,7 +140,7 @@ def make_draft(cfg, gh: GitHub, number: int, cand: dict, my_take: str, image_mod
     used_bg = 0
     if photo_mode:
         photo_uris = [u for u, _ in originals][:max_long]
-        if not photo_uris:
+        if not photo_uris and not cand.get("no_body"):
             prompts = [p for p in (copy.get("photo_prompts") or []) if p][:max_slides] or [copy.get("image_prompt", "")]
             for i, p in enumerate(prompts, 1):
                 path = out / f"photo_{i}.jpg"

@@ -88,6 +88,9 @@ def main():
         "format": "photo" if "사진" in (f.get("format") or "") else "text",
         "photo_urls": [c for c in (_clean_url(u) for u in (f.get("photo_urls") or "").splitlines()) if c],
     }
+    # 사진만 형식 + 본문 사진 주소에 '없음' → 본문 없이 표지 + 마무리만 (원문이 사진 한 장일 때)
+    no_body = (f.get("photo_urls") or "").strip().rstrip(".") in ("없음", "none", "None")
+    cand["no_body"] = no_body and cand["format"] == "photo"
     image_mode = "original" if cand["media_url"] else "ai"
 
     try:
