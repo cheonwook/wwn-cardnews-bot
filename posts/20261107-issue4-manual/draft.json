@@ -1,0 +1,37 @@
+{
+  "issue": 4,
+  "candidate": "manual",
+  "dir": "posts/20261107-issue4-manual",
+  "image_urls": [
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue4-manual/slide_01.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue4-manual/slide_02.jpg",
+    "https://raw.githubusercontent.com/cheonwook/wwn-cardnews-bot/main/posts/20261107-issue4-manual/slide_03.jpg"
+  ],
+  "caption": "이름 때문에 부모를 고소한 소년, 실제 사건이 아니에요. 🤔\n이 이야기는 2017년에 만들어진 허구예요.\n가짜뉴스 사이트 월드 뉴스 데일리 리포트에서 시작됐어요.\n처음에는 미국 미주리주 소년이 부모에게 $250,000를 청구했다는 내용이었어요.\n\n정말 그런 일이 있었다면, 아빠 이름도 ‘아머게이’로 바꿔야 인정하겠어요!! 아들 미래를 걱정하지 않고 너무 생각 없이 이름을 지은 거라면 화나요. 😠\n출처·사진: @bitchyquotes\n\n#사회이슈 #가짜뉴스 #허위정보 #미디어리터러시 #이름 #작명 #부모책임 #온라인정보 #카드뉴스 #해외이슈 #오늘의뉴스",
+  "copy": {
+    "headline": "이름 때문에 [[부모 고소]]한 소년, 사실은 [[허구]]",
+    "subheadline": "2017년 가짜뉴스 사이트가 만든 이야기",
+    "slides": [
+      {
+        "title": "실제 사건 아닌 [[허구]]",
+        "body": "이름 때문에 부모를 고소했다는 소년의 이야기는 허구예요. 2017년 가짜뉴스 사이트 월드 뉴스 데일리 리포트가 만들었어요.",
+        "highlight": "소년의 이야기는 허구예요"
+      }
+    ],
+    "my_take": "정말 그런 일이 있었다면, 아빠 이름도 ‘아머게이’로 바꿔야 인정하겠어요!! 아들 미래를 걱정하지 않고 너무 생각 없이 이름을 지은 거라면 화나요. 😠",
+    "caption": "이름 때문에 부모를 고소한 소년, 실제 사건이 아니에요. 🤔\n이 이야기는 2017년에 만들어진 허구예요.\n가짜뉴스 사이트 월드 뉴스 데일리 리포트에서 시작됐어요.\n처음에는 미국 미주리주 소년이 부모에게 $250,000를 청구했다는 내용이었어요.\n\n정말 그런 일이 있었다면, 아빠 이름도 ‘아머게이’로 바꿔야 인정하겠어요!! 아들 미래를 걱정하지 않고 너무 생각 없이 이름을 지은 거라면 화나요. 😠\n출처: @bitchyquotes",
+    "hashtags": [
+      "사회이슈",
+      "가짜뉴스",
+      "허위정보",
+      "미디어리터러시",
+      "이름",
+      "작명",
+      "부모책임",
+      "온라인정보"
+    ],
+    "image_prompt": "Conceptual editorial photograph of a blank name tag beside a crumpled newspaper with completely blank pages on a muted gray desk, dramatic side lighting and restrained colors, suggesting a fabricated viral story about a name, no people, no faces, no readable text, no letters, no logos, no flags, no characters or mascots, vertical composition.",
+    "photo_prompts": []
+  },
+  "source": "https://www.instagram.com/p/De8Mc1ISbS-/"
+}
