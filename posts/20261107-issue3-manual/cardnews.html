@@ -85,6 +85,41 @@
   .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
 
   /* ── 출처 / 마무리 ──────────────────── */
+  /* ── 마무리 시안 A: 액션 카드 ─────────── */
+  .oa .wrap { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; padding: 170px 80px 120px; }
+  .oa .logo { flex: none; width: 210px; height: 210px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 6px rgba(255,255,255,.12); }
+  .oa h2 { margin-top: 56px; font-family: 'HeadEn','HeadKo'; font-weight: 400; font-size: 96px; line-height: 1.08; text-align: center; letter-spacing: -.02em; color: #fff; }
+  .oa .rows { margin-top: 74px; width: 100%; display: flex; flex-direction: column; gap: 26px; }
+  .oa .row { display: flex; align-items: center; gap: 30px; background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.12); border-radius: 26px; padding: 30px 36px; }
+  .oa .row svg { width: 64px; height: 64px; flex: none; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .oa .row b { font-size: 42px; font-weight: 800; color: #fff; letter-spacing: -.02em; display: block; }
+  .oa .row span { font-size: 28px; color: #A9A9A9; font-weight: 500; }
+  .oa .handle { margin-top: auto; font-family: 'HeadEn','HeadKo'; font-size: 54px; color: var(--accent); letter-spacing: .01em; }
+
+  /* ── 마무리 시안 B: 신문 1면 ─────────── */
+  .ob { background: #F2EEE5; color: #111; }
+  .ob .wrap { position: absolute; inset: 70px 70px 70px; display: flex; flex-direction: column; }
+  .ob .meta { display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; letter-spacing: .08em; color: #555; border-bottom: 3px solid #111; padding-bottom: 16px; }
+  .ob .mast { text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 300px; line-height: .95; letter-spacing: -.02em; margin-top: 30px; }
+  .ob .mast em { color: var(--accent); }
+  .ob .sub { text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 40px; letter-spacing: .32em; margin-top: 6px; }
+  .ob .rule { border-top: 3px solid #111; border-bottom: 1px solid #111; height: 9px; margin: 40px 0 0; }
+  .ob .lead { margin-top: 60px; text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 92px; line-height: 1.12; letter-spacing: -.02em; }
+  .ob .lead em { color: var(--accent); }
+  .ob .cols { margin-top: 64px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid #111; }
+  .ob .cols div { padding: 30px 18px 0; text-align: center; font-size: 30px; font-weight: 700; line-height: 1.45; }
+  .ob .cols div + div { border-left: 2px solid #111; }
+  .ob .cols small { display: block; font-size: 22px; color: #666; font-weight: 600; letter-spacing: .1em; margin-bottom: 8px; }
+  .ob .bar { margin-top: auto; background: #111; color: #fff; display: flex; align-items: center; justify-content: center; gap: 26px; padding: 34px 0; font-family: 'HeadEn','HeadKo'; font-size: 52px; letter-spacing: .01em; }
+  .ob .bar i { width: 74px; height: 74px; border-radius: 50%; background: center/cover no-repeat; }
+
+  /* ── 마무리 시안 C: 미니멀 ───────────── */
+  .oc .wrap { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 90px; }
+  .oc .logo { flex: none; width: 360px; height: 360px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 10px rgba(255,255,255,.08), 0 30px 80px rgba(0,0,0,.6); }
+  .oc h2 { margin-top: 80px; font-family: 'HeadEn','HeadKo'; font-weight: 400; font-size: 84px; line-height: 1.15; color: #fff; letter-spacing: -.02em; }
+  .oc h2 em { color: var(--accent); }
+  .oc .handle { margin-top: 50px; font-size: 44px; font-weight: 800; color: var(--accent); }
+  .oc .more { position: absolute; bottom: 90px; left: 0; right: 0; text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 36px; color: #CFCFCF; letter-spacing: .03em; }
   /* ── 마무리: 팔로우 유도 카드 ───────── */
   .outro .bg { position: absolute; inset: -40px; background: center/cover no-repeat; filter: blur(14px) saturate(.8); transform: scale(1.06); }
   .outro .bg::after { content: ''; position: absolute; inset: 0; background: rgba(8,10,16,.72); }
@@ -122,7 +157,7 @@
 
 <section class="slide cover" id="s1">
   
-  <div class="photo short" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261107-issue3-manual/cover.jpg'); height: 880px"></div>
+  <div class="photo short" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261107-issue3-manual/cover.jpg'); height: 1345px"></div>
   <div class="shade"></div>
   <div class="top">
   <div class="wordmark"><span class="toplogo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></span><small>WORLD WIDE NEWS</small></div>
@@ -130,7 +165,7 @@
 </div>
   <div class="bottom">
     <div class="divider"><div class="badge">WWN</div></div>
-    <h1 class="headline fit"><em>실베스터 스탤론</em>, 숱한 거절 끝에 <em>록키</em>로 일어서다</h1>
+    <h1 class="headline fit"><em>스탤론</em>, 거절을 딛고 <em>록키</em>의 주인공이 되다</h1>
     <div class="swipe">넘겨서 자세히 보기 ›</div>
   </div>
 </section>
@@ -147,8 +182,8 @@
 </div>
   <div class="content">
     <div class="divider"><span class="label">POINT 01</span></div>
-    <h2 class="stitle">천 번 넘는 <em>거절</em></h2>
-    <p class="text fit">스탤론은 천 번 넘게 거절당했다고 알려져 있어요. “그 얼굴로는 안 돼.” “목소리가 걸림돌이야.” 배우를 꿈꾸던 그에게 돌아온 건 “<mark>넌 절대 성공 못 해</mark>”라는 말이었어요.</p>
+    <h2 class="stitle"><em>거절</em>이 일상이던 시절</h2>
+    <p class="text fit">실베스터 스탤론은 천 번 넘게 거절당했다고 알려져 있어요. “그 얼굴로는 안 돼.” “목소리가 걸림돌이야.” 배우를 꿈꾸던 그에게 돌아온 건 “<mark>넌 절대 성공 못 해</mark>”라는 말이었어요.</p>
   </div>
 </section>
 
@@ -162,7 +197,7 @@
   <div class="content">
     <div class="divider"><span class="label">POINT 02</span></div>
     <h2 class="stitle"><em>버스 터미널</em>의 밤</h2>
-    <p class="text fit">작은 배역으로 버텼지만 돈은 바닥났어요. 뉴욕의 <mark>버스 터미널에서 3주</mark> 동안 잠을 청했다고 알려져 있어요. 갈 곳도, 먹을 것도 없는 시간을 보내야 했죠.</p>
+    <p class="text fit">작은 배역의 출연료만으로는 생활을 이어가기 어려웠어요. 돈이 떨어진 그는 <mark>뉴욕의 버스 터미널에서 3주</mark> 동안 잠을 잤다고 알려져 있어요. 갈 곳도, 먹을 것도 없는 시간이었죠.</p>
   </div>
 </section>
 
@@ -176,7 +211,7 @@
   <div class="content">
     <div class="divider"><span class="label">POINT 03</span></div>
     <h2 class="stitle"><em>버커스</em>와의 이별</h2>
-    <p class="text fit">반려견 버커스의 먹이조차 살 수 없었던 그는 결국 개를 다른 사람에게 보내야 했어요. 그가 훗날 밝힌 판매 금액은 50달러였어요. 그는 그날을 “<mark>내 인생에서 가장 슬픈 날</mark>”이라고 표현했어요.</p>
+    <p class="text fit">반려견 버커스에게 줄 먹이조차 살 수 없었던 그는 결국 개를 50달러에 팔았어요. 가장 친한 친구를 떠나보낸 순간이었죠. 그는 그날을 “<mark>내 인생에서 가장 슬픈 날</mark>”이라고 표현했어요.</p>
   </div>
 </section>
 
@@ -189,8 +224,8 @@
 </div>
   <div class="content">
     <div class="divider"><span class="label">POINT 04</span></div>
-    <h2 class="stitle"><em>록키</em>가 태어난 밤</h2>
-    <p class="text fit">1975년 3월, 척 웨프너가 무하마드 알리를 상대로 15라운드를 버티는 경기를 봤어요. 그 대결에서 영감을 얻은 스탤론은 <mark>3일 반 만에</mark> 영화 《록키》의 각본을 썼어요.</p>
+    <h2 class="stitle"><em>록키</em>가 탄생한 경기</h2>
+    <p class="text fit">1975년 3월, 그는 척 웨프너가 무하마드 알리를 상대로 15라운드를 버티는 경기를 봤어요. 이 대결에서 영감을 얻었죠. 그렇게 <mark>3일 반 만에 영화 《록키》의 각본</mark>을 썼어요.</p>
   </div>
 </section>
 
@@ -203,8 +238,8 @@
 </div>
   <div class="content">
     <div class="divider"><span class="label">POINT 05</span></div>
-    <h2 class="stitle">돈 대신 택한 <em>주연</em></h2>
-    <p class="text fit">각본에 35만 달러를 제안받았지만, 다른 배우가 주연을 맡는 조건이었다고 알려져 있어요. 가진 돈이 100달러뿐이었어도 그는 거절했어요. <mark>직접 록키를 연기하겠다는 꿈</mark>을 놓지 않았죠.</p>
+    <h2 class="stitle">양보할 수 없던 <em>주연</em></h2>
+    <p class="text fit">각본을 사겠다는 제안에는 다른 배우를 주연으로 쓰겠다는 조건이 붙었어요. 하지만 스탤론은 자신이 직접 록키를 연기하고 싶었죠. 돈이 절실한 상황에서도 <mark>주연 자리를 포기하지 않았어요</mark>.</p>
   </div>
 </section>
 
@@ -217,8 +252,8 @@
 </div>
   <div class="content">
     <div class="divider"><span class="label">POINT 06</span></div>
-    <h2 class="stitle"><em>1976년</em>의 반전</h2>
-    <p class="text fit">마침내 작은 제작사가 그를 주연으로 받아들였어요. 1976년 개봉한 《록키》는 전 세계에서 약 2억 2,500만 달러를 벌었어요. <mark>아카데미 작품상·감독상·편집상</mark>까지 3관왕에 올랐죠.</p>
+    <h2 class="stitle"><em>1976년</em>, 꿈이 스크린에</h2>
+    <p class="text fit">마침내 한 작은 영화사가 스탤론에게 기회를 줬어요. 1976년 개봉한 《록키》는 전 세계에서 약 2억 2,500만 달러를 벌어들였죠. <mark>아카데미 작품·감독·편집상까지 3관왕</mark>에 올랐어요.</p>
   </div>
 </section>
 
@@ -232,7 +267,7 @@
   <div class="content">
     <div class="divider"><span class="label">POINT 07</span></div>
     <h2 class="stitle">다시 만난 <em>버커스</em></h2>
-    <p class="text fit">스탤론은 버커스를 다시 데려왔어요. 그가 훗날 밝힌 재구매 금액은 3,000달러였어요. 먹이를 살 돈이 없어 헤어졌던 반려견은 <mark>영화 《록키》에도 함께 출연</mark>했어요.</p>
+    <p class="text fit">스탤론은 <mark>3,000달러를 주고 버커스를 다시 데려왔어요</mark>. 먹이를 살 돈이 없어 헤어졌던 친구와 재회한 거예요. 버커스는 영화 《록키》에도 함께 출연했어요.</p>
   </div>
 </section>
 
@@ -245,8 +280,8 @@
 </div>
   <div class="content">
     <div class="divider"><span class="label">POINT 08</span></div>
-    <h2 class="stitle">록키에서 <em>람보</em>까지</h2>
-    <p class="text fit">록키에서 람보까지, 그의 배우 인생은 이어졌어요. 잠잘 곳조차 없던 시절의 각본가는 세계적인 스타가 됐죠. <mark>영화계에서 보낸 시간은 50년</mark>을 넘어섰어요.</p>
+    <h2 class="stitle"><em>록키에서 람보까지</em></h2>
+    <p class="text fit">록키에서 람보까지, 스탤론은 세계적인 스타가 됐어요. 버스 터미널에서 잠을 청하던 배우 지망생은 <mark>50년 넘게 영화계에서 활동했죠</mark>. 거절 속에서도 붙잡았던 배우의 꿈은 그렇게 이어졌어요.</p>
   </div>
 </section>
 
@@ -259,31 +294,18 @@
 
 
 
-<section class="slide outro" id="s10">
+
+
+<section class="slide outro oc" id="s10">
   <div class="bg" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/posts/20261107-issue3-manual/cover.jpg')"></div>
-  <div class="head">
-    <div class="o-ko">월드와이드뉴스</div>
-    <div class="o-en">WORLD WIDE NEWS</div>
-    <div class="o-tag">세계의 모든 <em>이슈</em>를 담다<br>매일 업데이트 되는 해외 이슈 카드뉴스</div>
-    <div class="o-handle">@wwn.daily</div>
+  <div class="wrap">
+    <div class="logo" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></div>
+    <h2>오늘의 세계,<br><em>3분</em>이면 충분해요</h2>
+    <div class="handle">@wwn.daily</div>
   </div>
-  <div class="phone">
-    <div class="ph-top">wwn.daily<i>···</i></div>
-    <div class="ph-prof">
-      <div class="ph-av" style="background-image:url('file:///home/runner/work/wwn-cardnews-bot/wwn-cardnews-bot/templates/logo.png')"></div>
-      <div>
-        <div class="ph-name">WWN 월드와이드뉴스 | 해외이슈</div>
-        <div class="ph-stats"><span>posts</span><span>followers</span><span>following</span></div>
-      </div>
-    </div>
-    <div class="ph-bubble">팔로우를 누르고<br>세계 소식을 가장 쉽게 만나보세요</div>
-    <div class="ph-btns"><div>Follow</div><div>Message</div><b></b></div>
-    <svg class="cursor" viewBox="0 0 24 24"><path d="M3 2 L3 20 L8 15.5 L11.5 22.5 L14.5 21 L11 14 L18 14 Z" fill="#111" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
-    <div class="ph-hl">
-      <div><span>정</span>Politics</div><div><span>경</span>Economy</div><div><span>사</span>Society</div><div><span>연</span>Celeb</div><div><span>시</span>World</div>
-    </div>
-  </div>
+  <div class="more">더 많은 해외 이슈는 프로필에서 ›</div>
 </section>
+
 
 
 <script>
