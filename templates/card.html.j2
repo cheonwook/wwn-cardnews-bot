@@ -77,6 +77,41 @@
   .sign { margin-top: 28px; font-family: 'HeadEn', 'HeadKo'; font-size: 34px; color: var(--accent); text-align: right; letter-spacing: .02em; }
 
   /* ── 출처 / 마무리 ──────────────────── */
+  /* ── 마무리 시안 A: 액션 카드 ─────────── */
+  .oa .wrap { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; padding: 170px 80px 120px; }
+  .oa .logo { flex: none; width: 210px; height: 210px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 6px rgba(255,255,255,.12); }
+  .oa h2 { margin-top: 56px; font-family: 'HeadEn','HeadKo'; font-weight: 400; font-size: 96px; line-height: 1.08; text-align: center; letter-spacing: -.02em; color: #fff; }
+  .oa .rows { margin-top: 74px; width: 100%; display: flex; flex-direction: column; gap: 26px; }
+  .oa .row { display: flex; align-items: center; gap: 30px; background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.12); border-radius: 26px; padding: 30px 36px; }
+  .oa .row svg { width: 64px; height: 64px; flex: none; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .oa .row b { font-size: 42px; font-weight: 800; color: #fff; letter-spacing: -.02em; display: block; }
+  .oa .row span { font-size: 28px; color: #A9A9A9; font-weight: 500; }
+  .oa .handle { margin-top: auto; font-family: 'HeadEn','HeadKo'; font-size: 54px; color: var(--accent); letter-spacing: .01em; }
+
+  /* ── 마무리 시안 B: 신문 1면 ─────────── */
+  .ob { background: #F2EEE5; color: #111; }
+  .ob .wrap { position: absolute; inset: 70px 70px 70px; display: flex; flex-direction: column; }
+  .ob .meta { display: flex; justify-content: space-between; font-size: 24px; font-weight: 700; letter-spacing: .08em; color: #555; border-bottom: 3px solid #111; padding-bottom: 16px; }
+  .ob .mast { text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 300px; line-height: .95; letter-spacing: -.02em; margin-top: 30px; }
+  .ob .mast em { color: var(--accent); }
+  .ob .sub { text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 40px; letter-spacing: .32em; margin-top: 6px; }
+  .ob .rule { border-top: 3px solid #111; border-bottom: 1px solid #111; height: 9px; margin: 40px 0 0; }
+  .ob .lead { margin-top: 60px; text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 92px; line-height: 1.12; letter-spacing: -.02em; }
+  .ob .lead em { color: var(--accent); }
+  .ob .cols { margin-top: 64px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid #111; }
+  .ob .cols div { padding: 30px 18px 0; text-align: center; font-size: 30px; font-weight: 700; line-height: 1.45; }
+  .ob .cols div + div { border-left: 2px solid #111; }
+  .ob .cols small { display: block; font-size: 22px; color: #666; font-weight: 600; letter-spacing: .1em; margin-bottom: 8px; }
+  .ob .bar { margin-top: auto; background: #111; color: #fff; display: flex; align-items: center; justify-content: center; gap: 26px; padding: 34px 0; font-family: 'HeadEn','HeadKo'; font-size: 52px; letter-spacing: .01em; }
+  .ob .bar i { width: 74px; height: 74px; border-radius: 50%; background: center/cover no-repeat; }
+
+  /* ── 마무리 시안 C: 미니멀 ───────────── */
+  .oc .wrap { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 90px; }
+  .oc .logo { flex: none; width: 360px; height: 360px; border-radius: 50%; background: center/cover no-repeat; box-shadow: 0 0 0 10px rgba(255,255,255,.08), 0 30px 80px rgba(0,0,0,.6); }
+  .oc h2 { margin-top: 80px; font-family: 'HeadEn','HeadKo'; font-weight: 400; font-size: 84px; line-height: 1.15; color: #fff; letter-spacing: -.02em; }
+  .oc h2 em { color: var(--accent); }
+  .oc .handle { margin-top: 50px; font-size: 44px; font-weight: 800; color: var(--accent); }
+  .oc .more { position: absolute; bottom: 90px; left: 0; right: 0; text-align: center; font-family: 'HeadEn','HeadKo'; font-size: 36px; color: #CFCFCF; letter-spacing: .03em; }
   /* ── 마무리: 팔로우 유도 카드 ───────── */
   .outro .bg { position: absolute; inset: -40px; background: center/cover no-repeat; filter: blur(14px) saturate(.8); transform: scale(1.06); }
   .outro .bg::after { content: ''; position: absolute; inset: 0; background: rgba(8,10,16,.72); }
@@ -169,6 +204,49 @@
 
 {# ④ 출처 / 마무리 (선택) #}
 {% if show_outro %}
+{% set ostyle = outro.get('style', 'action') %}
+{% if ostyle == 'action' %}
+<section class="slide outro oa" id="s{{ total }}">
+  <div class="bg" style="background-image:url('{{ image_url }}')"></div>
+  {{ top(total) }}
+  <div class="wrap">
+    <div class="logo" style="background-image:url('{{ logo_url }}')"></div>
+    <h2>{{ outro_title }}</h2>
+    <div class="rows">
+      <div class="row"><svg viewBox="0 0 24 24"><path d="M18 7v14l-6-4-6 4V7a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4z"/></svg><div><b>저장해두기</b><span>다시 보고 싶을 때 바로 꺼내보세요</span></div></div>
+      <div class="row"><svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="M21 3l-6.5 18a.55.55 0 0 1-1 0L10 14l-7-3.5a.55.55 0 0 1 0-1L21 3"/></svg><div><b>친구에게 공유하기</b><span>이 이야기를 함께 나누고 싶은 사람에게</span></div></div>
+      <div class="row"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 11h6"/><path d="M19 8v6"/></svg><div><b>팔로우하기</b><span>매일 새로운 해외 이슈를 한국어로</span></div></div>
+    </div>
+    <div class="handle">{{ brand.handle }}</div>
+  </div>
+</section>
+{% elif ostyle == 'paper' %}
+<section class="slide outro ob" id="s{{ total }}">
+  <div class="wrap">
+    <div class="meta"><span>{{ date }}</span><span>해외 이슈 카드뉴스</span><span>{{ brand.handle }}</span></div>
+    <div class="mast">W<em>W</em>N</div>
+    <div class="sub">WORLD WIDE NEWS</div>
+    <div class="rule"></div>
+    <div class="lead">{{ outro_title }}</div>
+    <div class="cols">
+      <div><small>DAILY</small>매일 업데이트</div>
+      <div><small>WORLD</small>해외 화제 이슈</div>
+      <div><small>KOREAN</small>한국어로 쉽게</div>
+    </div>
+    <div class="bar"><i style="background-image:url('{{ logo_url }}')"></i>팔로우 {{ brand.handle }}</div>
+  </div>
+</section>
+{% elif ostyle == 'minimal' %}
+<section class="slide outro oc" id="s{{ total }}">
+  <div class="bg" style="background-image:url('{{ image_url }}')"></div>
+  <div class="wrap">
+    <div class="logo" style="background-image:url('{{ logo_url }}')"></div>
+    <h2>{{ outro_title }}</h2>
+    <div class="handle">{{ brand.handle }}</div>
+  </div>
+  <div class="more">더 많은 해외 이슈는 프로필에서 ›</div>
+</section>
+{% else %}
 <section class="slide outro" id="s{{ total }}">
   <div class="bg" style="background-image:url('{{ image_url }}')"></div>
   <div class="head">
@@ -194,6 +272,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 {% endif %}
 
 <script>
