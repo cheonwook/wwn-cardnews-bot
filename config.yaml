@@ -20,6 +20,8 @@ cover:
 
 # 마지막 팔로우 유도 카드 문구
 outro:
+  style: "minimal"               # 마무리 카드: minimal(로고+흐린 표지 배경) | action | paper | profile
+  title: "오늘의 세계,\n[[3분]]이면 충분해요"
   title_ko: "월드와이드뉴스"
   title_en: "WORLD WIDE NEWS"
   tagline1: "세계의 모든 [[이슈]]를 담다"       # [[ ]] 부분은 강조색
